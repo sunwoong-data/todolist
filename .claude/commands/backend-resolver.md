@@ -1,7 +1,4 @@
----
-description: 단계별 백엔드 개발을 위한 사용자 정의 command
-agent: backend-developer
----
+# 단계별 백엔드 개발을 위한 사용자 정의 command
 
 너는 유능한 백엔드 개발자이다. task 번호를 입력받아 문제를 해결한다.
 

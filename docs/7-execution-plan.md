@@ -60,13 +60,13 @@
 - 없음 (DB와 병렬 착수 가능)
 
 **완료 조건**
-- [ ] `backend/package.json`이 생성되고 의존성이 설치되어 있다
+- [x] `backend/package.json`이 생성되고 의존성이 설치되어 있다
   - dependencies: `express`, `pg`, `bcrypt`, `jsonwebtoken`, `cors`, `dotenv`
   - devDependencies: `typescript`, `@types/*`, `ts-node`, `nodemon`, `eslint`, `prettier`
-- [ ] `backend/tsconfig.json`에 `"strict": true`가 설정되어 있다
-- [ ] `backend/.env.example`이 `docs/4-architecture-principles.md` 섹션 1-4 기준으로 작성되어 있다
-- [ ] `backend/.env`가 로컬 환경값으로 채워져 있다 (gitignore 확인)
-- [ ] `npm run dev` 실행 시 서버가 `PORT=3000`으로 시작된다
+- [x] `backend/tsconfig.json`에 `"strict": true`가 설정되어 있다
+- [x] `backend/.env.example`이 `docs/4-architecture-principles.md` 섹션 1-4 기준으로 작성되어 있다
+- [x] `backend/.env`가 로컬 환경값으로 채워져 있다 (gitignore 확인)
+- [x] `npm run dev` 실행 시 서버가 `PORT=3000`으로 시작된다
 
 ---
 
