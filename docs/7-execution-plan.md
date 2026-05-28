@@ -106,26 +106,26 @@
 **목적**: 회원가입 및 로그인 API를 구현한다. 회원가입 시 "기본" 카테고리를 자동 생성한다.
 
 **의존성**
-- [ ] BE-02 완료 (DB 커넥션 필요)
-- [ ] BE-03 완료
+- [x] BE-02 완료 (DB 커넥션 필요)
+- [x] BE-03 완료
 
 **완료 조건**
-- [ ] `backend/src/repositories/user.repository.ts` 구현
+- [x] `backend/src/repositories/user.repository.ts` 구현
   - `findByEmail(email)`, `create(dto)` 함수
   - 파라미터화된 쿼리(`$1`, `$2`) 사용
-- [ ] `backend/src/repositories/category.repository.ts` 구현
+- [x] `backend/src/repositories/category.repository.ts` 구현
   - `createDefaultCategory(userId)`, `findByUserId(userId)`, `findDefaultByUserId(userId)` 함수
-- [ ] `backend/src/services/auth.service.ts` 구현
+- [x] `backend/src/services/auth.service.ts` 구현
   - `register()`: bcrypt 해싱, 중복 이메일 409 처리, 기본 카테고리 자동 생성(BR-04)
   - `login()`: bcrypt.compare() 검증, JWT 발급 (payload: `{ userId }`, 만료: `JWT_EXPIRES_IN`)
-- [ ] `backend/src/routes/auth.router.ts` 구현
+- [x] `backend/src/routes/auth.router.ts` 구현
   - `POST /api/auth/register` → 201 반환
   - `POST /api/auth/login` → 200 + JWT 반환
-- [ ] `backend/src/middlewares/auth.middleware.ts` 구현
+- [x] `backend/src/middlewares/auth.middleware.ts` 구현
   - `Authorization: Bearer <token>` 헤더 검증
   - 토큰 없음 → 401, 유효하지 않은 토큰 → 401
   - 검증 성공 시 `req.userId` 주입
-- [ ] 수락 기준 충족
+- [x] 수락 기준 충족
   - 올바른 입력으로 회원가입 → 201 + "기본" 카테고리 DB에 존재
   - 중복 이메일로 회원가입 → 409
   - 올바른 자격증명으로 로그인 → 200 + JWT
