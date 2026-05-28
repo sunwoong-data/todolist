@@ -75,13 +75,13 @@
 **목적**: `pg.Pool` 인스턴스를 생성하고 전역에서 재사용한다.
 
 **의존성**
-- [ ] BE-01 완료
-- [ ] DB-01 완료
+- [x] BE-01 완료
+- [x] DB-01 완료
 
 **완료 조건**
-- [ ] `backend/src/db/pool.ts`가 `docs/4-architecture-principles.md` 섹션 5-5 예시 기준으로 구현되어 있다
-- [ ] `max: 20`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 2000` 설정이 적용되어 있다
-- [ ] 서버 시작 시 DB 연결이 성공한다 (연결 실패 시 에러 로그 출력)
+- [x] `backend/src/db/pool.ts`가 `docs/4-architecture-principles.md` 섹션 5-5 예시 기준으로 구현되어 있다
+- [x] `max: 20`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 2000` 설정이 적용되어 있다
+- [x] 서버 시작 시 DB 연결이 성공한다 (연결 실패 시 에러 로그 출력)
 
 ---
 
