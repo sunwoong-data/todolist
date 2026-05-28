@@ -1,23 +1,21 @@
-import 'dotenv/config';
-import request from 'supertest';
-import { pool } from '../../src/db/pool';
-import app from '../../src/app';
+require('dotenv/config');
+const request = require('supertest');
+const { pool } = require('../../src/db/pool');
+const app = require('../../src/app');
 
-async function cleanupUser(email: string): Promise<void> {
+async function cleanupUser(email) {
   await pool.query('DELETE FROM users WHERE email = $1', [email]);
 }
 
-// ── 헬퍼: 회원가입 + 로그인 후 token 반환 ──────────────────────
-async function registerAndLogin(email: string, name = '테스터'): Promise<string> {
+async function registerAndLogin(email, name = '테스터') {
   await request(app).post('/api/auth/register').send({ email, password: 'pw123456', name });
   const res = await request(app).post('/api/auth/login').send({ email, password: 'pw123456' });
-  return res.body.token as string;
+  return res.body.token;
 }
 
-// ── CRUD 기본 동작 ──────────────────────────────────────────────
 describe('POST /api/todos', () => {
   const email = `todo_create_${Date.now()}@test.com`;
-  let token: string;
+  let token;
 
   beforeAll(async () => { token = await registerAndLogin(email); });
   afterAll(async () => { await cleanupUser(email); });
@@ -55,14 +53,12 @@ describe('POST /api/todos', () => {
   });
 });
 
-// ── 목록 조회 ───────────────────────────────────────────────────
 describe('GET /api/todos', () => {
   const email = `todo_list_${Date.now()}@test.com`;
-  let token: string;
+  let token;
 
   beforeAll(async () => {
     token = await registerAndLogin(email);
-    // 다양한 날짜 상태의 할 일 생성
     await request(app).post('/api/todos').set('Authorization', `Bearer ${token}`)
       .send({ title: '진행중', startDate: '2026-01-01', endDate: '2099-12-31' });
     await request(app).post('/api/todos').set('Authorization', `Bearer ${token}`)
@@ -81,7 +77,7 @@ describe('GET /api/todos', () => {
   it('status=in_progress 필터가 동작한다 (BR-10)', async () => {
     const res = await request(app).get('/api/todos?status=in_progress').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    const titles = res.body.todos.map((t: { title: string }) => t.title);
+    const titles = res.body.todos.map((t) => t.title);
     expect(titles).toContain('진행중');
     expect(titles).not.toContain('기한초과');
     expect(titles).not.toContain('시작전');
@@ -90,24 +86,23 @@ describe('GET /api/todos', () => {
   it('status=overdue 필터가 동작한다 (BR-12)', async () => {
     const res = await request(app).get('/api/todos?status=overdue').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    const titles = res.body.todos.map((t: { title: string }) => t.title);
+    const titles = res.body.todos.map((t) => t.title);
     expect(titles).toContain('기한초과');
   });
 
   it('status=pending 필터가 동작한다 (BR-09)', async () => {
     const res = await request(app).get('/api/todos?status=pending').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    const titles = res.body.todos.map((t: { title: string }) => t.title);
+    const titles = res.body.todos.map((t) => t.title);
     expect(titles).toContain('시작전');
   });
 });
 
-// ── 데이터 격리 (BR-02) ─────────────────────────────────────────
 describe('GET /api/todos - 데이터 격리 (BR-02)', () => {
   const emailA = `todo_iso_a_${Date.now()}@test.com`;
   const emailB = `todo_iso_b_${Date.now()}@test.com`;
-  let tokenA: string;
-  let tokenB: string;
+  let tokenA;
+  let tokenB;
 
   beforeAll(async () => {
     tokenA = await registerAndLogin(emailA, '사용자A');
@@ -122,16 +117,15 @@ describe('GET /api/todos - 데이터 격리 (BR-02)', () => {
 
   it('사용자B가 조회해도 사용자A의 할 일이 포함되지 않는다', async () => {
     const res = await request(app).get('/api/todos').set('Authorization', `Bearer ${tokenB}`);
-    const titles = res.body.todos.map((t: { title: string }) => t.title);
+    const titles = res.body.todos.map((t) => t.title);
     expect(titles).not.toContain('A전용할일');
   });
 });
 
-// ── 단건 조회 ───────────────────────────────────────────────────
 describe('GET /api/todos/:id', () => {
   const email = `todo_get_${Date.now()}@test.com`;
-  let token: string;
-  let todoId: string;
+  let token;
+  let todoId;
 
   beforeAll(async () => {
     token = await registerAndLogin(email);
@@ -155,13 +149,12 @@ describe('GET /api/todos/:id', () => {
   });
 });
 
-// ── 수정 ────────────────────────────────────────────────────────
 describe('PATCH /api/todos/:id', () => {
   const emailOwner = `todo_upd_own_${Date.now()}@test.com`;
   const emailOther = `todo_upd_oth_${Date.now()}@test.com`;
-  let ownerToken: string;
-  let otherToken: string;
-  let todoId: string;
+  let ownerToken;
+  let otherToken;
+  let todoId;
 
   beforeAll(async () => {
     ownerToken = await registerAndLogin(emailOwner, '소유자');
@@ -198,12 +191,11 @@ describe('PATCH /api/todos/:id', () => {
   });
 });
 
-// ── 삭제 ────────────────────────────────────────────────────────
 describe('DELETE /api/todos/:id', () => {
   const emailOwner = `todo_del_own_${Date.now()}@test.com`;
   const emailOther = `todo_del_oth_${Date.now()}@test.com`;
-  let ownerToken: string;
-  let otherToken: string;
+  let ownerToken;
+  let otherToken;
 
   beforeAll(async () => {
     ownerToken = await registerAndLogin(emailOwner, '소유자');
@@ -238,13 +230,12 @@ describe('DELETE /api/todos/:id', () => {
   });
 });
 
-// ── 완료 처리 ───────────────────────────────────────────────────
 describe('PATCH /api/todos/:id/complete', () => {
   const emailOwner = `todo_cmp_own_${Date.now()}@test.com`;
   const emailOther = `todo_cmp_oth_${Date.now()}@test.com`;
-  let ownerToken: string;
-  let otherToken: string;
-  let todoId: string;
+  let ownerToken;
+  let otherToken;
+  let todoId;
 
   beforeAll(async () => {
     ownerToken = await registerAndLogin(emailOwner, '소유자');
@@ -272,25 +263,21 @@ describe('PATCH /api/todos/:id/complete', () => {
   });
 });
 
-// ── BR-08: category_id 필터 ─────────────────────────────────────
 describe('GET /api/todos - category_id 필터 (BR-08)', () => {
   const email = `todo_cat_filter_${Date.now()}@test.com`;
-  let token: string;
-  let categoryId: string;
+  let token;
+  let categoryId;
 
   beforeAll(async () => {
     token = await registerAndLogin(email, '카테고리필터테스터');
-    // 추가 카테고리 생성
     const catRes = await request(app)
       .post('/api/categories')
       .set('Authorization', `Bearer ${token}`)
       .send({ name: '업무카테고리' });
     categoryId = catRes.body.category.id;
-    // 업무 카테고리로 할 일 생성
     await request(app).post('/api/todos')
       .set('Authorization', `Bearer ${token}`)
       .send({ title: '업무할일', categoryId });
-    // 기본 카테고리로 할 일 생성 (카테고리 미지정)
     await request(app).post('/api/todos')
       .set('Authorization', `Bearer ${token}`)
       .send({ title: '기본할일' });
@@ -302,27 +289,24 @@ describe('GET /api/todos - category_id 필터 (BR-08)', () => {
       .get(`/api/todos?category_id=${categoryId}`)
       .set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    const titles = res.body.todos.map((t: { title: string }) => t.title);
+    const titles = res.body.todos.map((t) => t.title);
     expect(titles).toContain('업무할일');
     expect(titles).not.toContain('기본할일');
   });
 });
 
-// ── BR-11: completed 필터 ───────────────────────────────────────
 describe('GET /api/todos - completed 필터 (BR-11)', () => {
   const email = `todo_completed_${Date.now()}@test.com`;
-  let token: string;
+  let token;
 
   beforeAll(async () => {
     token = await registerAndLogin(email, '완료필터테스터');
-    // 완료 처리할 항목
     const res = await request(app).post('/api/todos')
       .set('Authorization', `Bearer ${token}`)
       .send({ title: '완료된항목' });
-    const todoId = res.body.todo.id as string;
+    const todoId = res.body.todo.id;
     await request(app).patch(`/api/todos/${todoId}/complete`)
       .set('Authorization', `Bearer ${token}`);
-    // 미완료 항목
     await request(app).post('/api/todos')
       .set('Authorization', `Bearer ${token}`)
       .send({ title: '미완료항목' });
@@ -334,7 +318,7 @@ describe('GET /api/todos - completed 필터 (BR-11)', () => {
       .get('/api/todos?status=completed')
       .set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
-    const titles = res.body.todos.map((t: { title: string }) => t.title);
+    const titles = res.body.todos.map((t) => t.title);
     expect(titles).toContain('완료된항목');
     expect(titles).not.toContain('미완료항목');
   });
@@ -343,14 +327,13 @@ describe('GET /api/todos - completed 필터 (BR-11)', () => {
     const res = await request(app)
       .get('/api/todos?status=completed')
       .set('Authorization', `Bearer ${token}`);
-    expect(res.body.todos.every((t: { isCompleted: boolean }) => t.isCompleted === true)).toBe(true);
+    expect(res.body.todos.every((t) => t.isCompleted === true)).toBe(true);
   });
 });
 
-// ── 응답 시간 검증 (500ms 이내) ─────────────────────────────────
 describe('API 응답 시간 (500ms 이내)', () => {
   const email = `todo_perf_${Date.now()}@test.com`;
-  let token: string;
+  let token;
 
   beforeAll(async () => { token = await registerAndLogin(email, '성능테스터'); });
   afterAll(async () => { await cleanupUser(email); });

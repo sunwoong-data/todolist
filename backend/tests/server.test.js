@@ -1,5 +1,5 @@
-import request from 'supertest';
-import app from '../src/app';
+const request = require('supertest');
+const app = require('../src/app');
 
 describe('GET /health', () => {
   it('200을 반환한다', async () => {

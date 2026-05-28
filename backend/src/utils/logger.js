@@ -1,11 +1,13 @@
-export const logger = {
-  info: (message: string, ...args: unknown[]) => {
+const logger = {
+  info: (message, ...args) => {
     console.log(`[INFO] ${new Date().toISOString()} - ${message}`, ...args);
   },
-  error: (message: string, ...args: unknown[]) => {
+  error: (message, ...args) => {
     console.error(`[ERROR] ${new Date().toISOString()} - ${message}`, ...args);
   },
-  warn: (message: string, ...args: unknown[]) => {
+  warn: (message, ...args) => {
     console.warn(`[WARN] ${new Date().toISOString()} - ${message}`, ...args);
   },
 };
+
+module.exports = { logger };

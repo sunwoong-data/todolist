@@ -1,10 +1,9 @@
-import 'dotenv/config';
-import request from 'supertest';
-import { pool } from '../../src/db/pool';
-import app from '../../src/app';
+require('dotenv/config');
+const request = require('supertest');
+const { pool } = require('../../src/db/pool');
+const app = require('../../src/app');
 
-// 테스트 후 생성된 사용자 데이터 정리
-async function cleanupUser(email: string): Promise<void> {
+async function cleanupUser(email) {
   await pool.query('DELETE FROM users WHERE email = $1', [email]);
 }
 
@@ -25,7 +24,6 @@ describe('POST /api/auth/register', () => {
   });
 
   it('응답에 user 객체가 포함된다', async () => {
-    // 위 테스트에서 이미 생성됐으므로 다른 이메일 사용
     const email2 = `test_register2_${Date.now()}@example.com`;
     const res = await request(app).post('/api/auth/register').send({
       email: email2,
@@ -34,7 +32,7 @@ describe('POST /api/auth/register', () => {
     });
     expect(res.body.user).toBeDefined();
     expect(res.body.user.email).toBe(email2);
-    expect(res.body.user.password).toBeUndefined(); // 비밀번호 미포함
+    expect(res.body.user.password).toBeUndefined();
     await cleanupUser(email2);
   });
 
@@ -56,7 +54,6 @@ describe('POST /api/auth/register', () => {
   });
 
   it('중복 이메일로 회원가입 시 409를 반환한다', async () => {
-    // testEmail은 첫 번째 테스트에서 이미 생성됨
     const res = await request(app).post('/api/auth/register').send({
       email: testEmail,
       password: 'other123',

@@ -1,10 +1,9 @@
-import 'dotenv/config';
-import request from 'supertest';
-import express, { Request, Response, NextFunction } from 'express';
-import { AppError, errorHandler } from '../../src/middlewares/errorHandler';
+require('dotenv/config');
+const request = require('supertest');
+const express = require('express');
+const { AppError, errorHandler } = require('../../src/middlewares/errorHandler');
 
-// 테스트용 임시 앱 생성 헬퍼
-function createTestApp(routeHandler: (req: Request, res: Response, next: NextFunction) => void) {
+function createTestApp(routeHandler) {
   const app = express();
   app.use(express.json());
   app.get('/test', routeHandler);
@@ -81,10 +80,7 @@ describe('errorHandler 미들웨어', () => {
 
 describe('app.ts CORS 설정', () => {
   it('CORS 헤더가 응답에 포함된다', async () => {
-    // 실제 app을 가져와서 CORS 동작 확인
-    // dotenv는 상단에서 로드됨
-    const appModule = await import('../../src/app');
-    const testApp = appModule.default;
+    const testApp = require('../../src/app');
     const res = await request(testApp)
       .get('/health')
       .set('Origin', 'http://localhost:5173');

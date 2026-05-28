@@ -1,29 +1,23 @@
-import { pool } from '../db/pool';
-import { Todo } from '../types/todo';
+const { pool } = require('../db/pool');
 
-function mapRow(row: Record<string, unknown>): Todo {
+function mapRow(row) {
   return {
-    id: row.id as string,
-    userId: row.user_id as string,
-    categoryId: row.category_id as string,
-    title: row.title as string,
-    description: row.description as string | null,
+    id: row.id,
+    userId: row.user_id,
+    categoryId: row.category_id,
+    title: row.title,
+    description: row.description,
     startDate: row.start_date ? String(row.start_date).substring(0, 10) : null,
     endDate: row.end_date ? String(row.end_date).substring(0, 10) : null,
-    isCompleted: row.is_completed as boolean,
+    isCompleted: row.is_completed,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   };
 }
 
-export interface FindTodosFilter {
-  status?: string;
-  categoryId?: string;
-}
-
-export async function findByUserId(userId: string, filter: FindTodosFilter = {}): Promise<Todo[]> {
-  const conditions: string[] = ['user_id = $1'];
-  const params: unknown[] = [userId];
+async function findByUserId(userId, filter = {}) {
+  const conditions = ['user_id = $1'];
+  const params = [userId];
   let idx = 2;
 
   if (filter.status === 'pending') {
@@ -47,7 +41,7 @@ export async function findByUserId(userId: string, filter: FindTodosFilter = {})
   return result.rows.map(mapRow);
 }
 
-export async function findByIdAndUserId(id: string, userId: string): Promise<Todo | null> {
+async function findByIdAndUserId(id, userId) {
   const result = await pool.query(
     `SELECT * FROM todos WHERE id = $1 AND user_id = $2`,
     [id, userId],
@@ -55,21 +49,12 @@ export async function findByIdAndUserId(id: string, userId: string): Promise<Tod
   return result.rows.length > 0 ? mapRow(result.rows[0]) : null;
 }
 
-export async function findById(id: string): Promise<Todo | null> {
+async function findById(id) {
   const result = await pool.query(`SELECT * FROM todos WHERE id = $1`, [id]);
   return result.rows.length > 0 ? mapRow(result.rows[0]) : null;
 }
 
-export interface CreateTodoRepoDto {
-  userId: string;
-  categoryId: string;
-  title: string;
-  description?: string;
-  startDate?: string;
-  endDate?: string;
-}
-
-export async function create(dto: CreateTodoRepoDto): Promise<Todo> {
+async function create(dto) {
   const result = await pool.query(
     `INSERT INTO todos (user_id, category_id, title, description, start_date, end_date)
      VALUES ($1, $2, $3, $4, $5, $6)
@@ -79,17 +64,9 @@ export async function create(dto: CreateTodoRepoDto): Promise<Todo> {
   return mapRow(result.rows[0]);
 }
 
-export interface UpdateTodoRepoDto {
-  title?: string;
-  description?: string | null;
-  categoryId?: string;
-  startDate?: string | null;
-  endDate?: string | null;
-}
-
-export async function update(id: string, dto: UpdateTodoRepoDto): Promise<Todo> {
-  const fields: string[] = [];
-  const values: unknown[] = [];
+async function update(id, dto) {
+  const fields = [];
+  const values = [];
   let idx = 1;
 
   if (dto.title !== undefined) { fields.push(`title = $${idx++}`); values.push(dto.title); }
@@ -108,14 +85,16 @@ export async function update(id: string, dto: UpdateTodoRepoDto): Promise<Todo> 
   return mapRow(result.rows[0]);
 }
 
-export async function deleteById(id: string): Promise<void> {
+async function deleteById(id) {
   await pool.query(`DELETE FROM todos WHERE id = $1`, [id]);
 }
 
-export async function markComplete(id: string): Promise<Todo> {
+async function markComplete(id) {
   const result = await pool.query(
     `UPDATE todos SET is_completed = true, updated_at = NOW() WHERE id = $1 RETURNING *`,
     [id],
   );
   return mapRow(result.rows[0]);
 }
+
+module.exports = { findByUserId, findByIdAndUserId, findById, create, update, deleteById, markComplete };

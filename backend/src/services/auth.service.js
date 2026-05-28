@@ -1,27 +1,10 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { AppError } from '../middlewares/errorHandler';
-import * as userRepo from '../repositories/user.repository';
-import * as categoryRepo from '../repositories/category.repository';
-import { User } from '../types/user';
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { AppError } = require('../middlewares/errorHandler');
+const userRepo = require('../repositories/user.repository');
+const categoryRepo = require('../repositories/category.repository');
 
-export interface RegisterDto {
-  email: string;
-  password: string;
-  name: string;
-}
-
-export interface LoginDto {
-  email: string;
-  password: string;
-}
-
-export interface LoginResult {
-  user: User;
-  token: string;
-}
-
-export async function register(dto: RegisterDto): Promise<User> {
+async function register(dto) {
   const existing = await userRepo.findByEmail(dto.email);
   if (existing) {
     throw new AppError(409, 'EMAIL_CONFLICT', '이미 사용 중인 이메일입니다.');
@@ -32,7 +15,7 @@ export async function register(dto: RegisterDto): Promise<User> {
   return user;
 }
 
-export async function login(dto: LoginDto): Promise<LoginResult> {
+async function login(dto) {
   const userWithPw = await userRepo.findByEmailWithPassword(dto.email);
   if (!userWithPw) {
     throw new AppError(401, 'INVALID_CREDENTIALS', '이메일 또는 비밀번호가 올바르지 않습니다.');
@@ -44,8 +27,10 @@ export async function login(dto: LoginDto): Promise<LoginResult> {
   const { password: _pw, ...user } = userWithPw;
   const token = jwt.sign(
     { userId: user.id },
-    process.env.JWT_SECRET!,
-    { expiresIn: process.env.JWT_EXPIRES_IN ?? '7d' } as jwt.SignOptions,
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN ?? '7d' },
   );
   return { user, token };
 }
+
+module.exports = { register, login };

@@ -1,15 +1,15 @@
-import 'dotenv/config';
-import request from 'supertest';
-import { pool } from '../../src/db/pool';
-import app from '../../src/app';
+require('dotenv/config');
+const request = require('supertest');
+const { pool } = require('../../src/db/pool');
+const app = require('../../src/app');
 
-async function cleanupUser(email: string): Promise<void> {
+async function cleanupUser(email) {
   await pool.query('DELETE FROM users WHERE email = $1', [email]);
 }
 
 describe('GET /api/categories', () => {
   const email = `test_cat_get_${Date.now()}@example.com`;
-  let token: string;
+  let token;
 
   beforeAll(async () => {
     await request(app).post('/api/auth/register').send({
@@ -30,7 +30,7 @@ describe('GET /api/categories', () => {
     const res = await request(app).get('/api/categories').set('Authorization', `Bearer ${token}`);
     expect(res.body.categories).toBeDefined();
     expect(Array.isArray(res.body.categories)).toBe(true);
-    expect(res.body.categories.some((c: { name: string }) => c.name === '기본')).toBe(true);
+    expect(res.body.categories.some((c) => c.name === '기본')).toBe(true);
   });
 
   it('토큰 없이 요청하면 401을 반환한다', async () => {
@@ -42,8 +42,8 @@ describe('GET /api/categories', () => {
 describe('GET /api/categories - 데이터 격리 (BR-02)', () => {
   const emailA = `test_cat_a_${Date.now()}@example.com`;
   const emailB = `test_cat_b_${Date.now()}@example.com`;
-  let tokenA: string;
-  let tokenB: string;
+  let tokenA;
+  let tokenB;
 
   beforeAll(async () => {
     await request(app).post('/api/auth/register').send({ email: emailA, password: 'pw123', name: '사용자A' });
@@ -52,7 +52,6 @@ describe('GET /api/categories - 데이터 격리 (BR-02)', () => {
     const resB = await request(app).post('/api/auth/login').send({ email: emailB, password: 'pw123' });
     tokenA = resA.body.token;
     tokenB = resB.body.token;
-    // 사용자A에게만 추가 카테고리 생성
     await request(app).post('/api/categories').set('Authorization', `Bearer ${tokenA}`).send({ name: 'A전용카테고리' });
   });
 
@@ -63,14 +62,14 @@ describe('GET /api/categories - 데이터 격리 (BR-02)', () => {
 
   it('사용자B가 조회해도 사용자A의 카테고리가 포함되지 않는다', async () => {
     const res = await request(app).get('/api/categories').set('Authorization', `Bearer ${tokenB}`);
-    const names = res.body.categories.map((c: { name: string }) => c.name);
+    const names = res.body.categories.map((c) => c.name);
     expect(names).not.toContain('A전용카테고리');
   });
 });
 
 describe('POST /api/categories', () => {
   const email = `test_cat_post_${Date.now()}@example.com`;
-  let token: string;
+  let token;
 
   beforeAll(async () => {
     await request(app).post('/api/auth/register').send({ email, password: 'password123', name: '카테고리생성테스터' });

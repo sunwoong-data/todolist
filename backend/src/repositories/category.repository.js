@@ -1,16 +1,15 @@
-import { pool } from '../db/pool';
-import { Category } from '../types/category';
+const { pool } = require('../db/pool');
 
-function mapRow(row: Record<string, unknown>): Category {
+function mapRow(row) {
   return {
-    id: row.id as string,
-    userId: row.user_id as string,
-    name: row.name as string,
-    isDefault: row.is_default as boolean,
+    id: row.id,
+    userId: row.user_id,
+    name: row.name,
+    isDefault: row.is_default,
   };
 }
 
-export async function createDefaultCategory(userId: string): Promise<Category> {
+async function createDefaultCategory(userId) {
   const result = await pool.query(
     `INSERT INTO categories (user_id, name, is_default)
      VALUES ($1, $2, $3)
@@ -20,7 +19,7 @@ export async function createDefaultCategory(userId: string): Promise<Category> {
   return mapRow(result.rows[0]);
 }
 
-export async function findByUserId(userId: string): Promise<Category[]> {
+async function findByUserId(userId) {
   const result = await pool.query(
     `SELECT id, user_id, name, is_default FROM categories WHERE user_id = $1`,
     [userId],
@@ -28,7 +27,7 @@ export async function findByUserId(userId: string): Promise<Category[]> {
   return result.rows.map(mapRow);
 }
 
-export async function findDefaultByUserId(userId: string): Promise<Category | null> {
+async function findDefaultByUserId(userId) {
   const result = await pool.query(
     `SELECT id, user_id, name, is_default FROM categories WHERE user_id = $1 AND is_default = true`,
     [userId],
@@ -36,7 +35,7 @@ export async function findDefaultByUserId(userId: string): Promise<Category | nu
   return result.rows.length > 0 ? mapRow(result.rows[0]) : null;
 }
 
-export async function create(userId: string, name: string): Promise<Category> {
+async function create(userId, name) {
   const result = await pool.query(
     `INSERT INTO categories (user_id, name, is_default)
      VALUES ($1, $2, false)
@@ -45,3 +44,5 @@ export async function create(userId: string, name: string): Promise<Category> {
   );
   return mapRow(result.rows[0]);
 }
+
+module.exports = { createDefaultCategory, findByUserId, findDefaultByUserId, create };

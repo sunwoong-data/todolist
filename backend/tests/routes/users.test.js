@@ -1,15 +1,15 @@
-import 'dotenv/config';
-import request from 'supertest';
-import { pool } from '../../src/db/pool';
-import app from '../../src/app';
+require('dotenv/config');
+const request = require('supertest');
+const { pool } = require('../../src/db/pool');
+const app = require('../../src/app');
 
-async function cleanupUser(email: string): Promise<void> {
+async function cleanupUser(email) {
   await pool.query('DELETE FROM users WHERE email = $1', [email]);
 }
 
 describe('GET /api/users/me', () => {
   const email = `test_profile_${Date.now()}@example.com`;
-  let token: string;
+  let token;
 
   beforeAll(async () => {
     await request(app).post('/api/auth/register').send({
@@ -52,7 +52,7 @@ describe('GET /api/users/me', () => {
 
 describe('PATCH /api/users/me', () => {
   const email = `test_patch_${Date.now()}@example.com`;
-  let token: string;
+  let token;
 
   beforeAll(async () => {
     await request(app).post('/api/auth/register').send({

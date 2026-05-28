@@ -1,6 +1,6 @@
-import { Pool } from 'pg';
+const { Pool } = require('pg');
 
-export const pool = new Pool({
+const pool = new Pool({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
   database: process.env.DB_NAME,
@@ -10,3 +10,5 @@ export const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 });
+
+module.exports = { pool };
