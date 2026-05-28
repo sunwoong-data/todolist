@@ -179,22 +179,22 @@
 **목적**: 할 일 CRUD 및 완료 처리 API를 구현한다. 가장 핵심적인 비즈니스 로직이 집중된 Task다.
 
 **의존성**
-- [ ] BE-04 완료
-- [ ] BE-06 완료 (기본 카테고리 조회 필요)
+- [x] BE-04 완료
+- [x] BE-06 완료 (기본 카테고리 조회 필요)
 
 **완료 조건**
-- [ ] `backend/src/repositories/todo.repository.ts` 구현
+- [x] `backend/src/repositories/todo.repository.ts` 구현
   - `findByUserId(userId, filters)`: status, category_id 필터 쿼리 포함 (BR-08~BR-12)
   - `findByIdAndUserId(id, userId)`: 소유권 검증 포함 조회
   - `create(dto)`, `update(id, dto)`, `deleteById(id)`, `markComplete(id)` 함수
   - 모든 쿼리 파라미터화 필수
-- [ ] `backend/src/services/todo.service.ts` 구현
+- [x] `backend/src/services/todo.service.ts` 구현
   - `createTodo()`: BR-06 날짜 유효성, BR-03 기본 카테고리 자동 배정
   - `getTodos()`: 소유 확인 후 필터 적용 조회
   - `updateTodo()`: 소유권 검증(BR-05), 날짜 유효성(BR-06)
   - `deleteTodo()`: 소유권 검증(BR-05), 없는 항목 → 404
   - `completeTodo()`: 소유권 검증(BR-05)
-- [ ] `backend/src/routes/todos.router.ts` 구현
+- [x] `backend/src/routes/todos.router.ts` 구현
   - `GET /api/todos` (쿼리: `?status=&category_id=`)
   - `POST /api/todos` → 201
   - `GET /api/todos/:id`
@@ -202,7 +202,7 @@
   - `DELETE /api/todos/:id` → 200
   - `PATCH /api/todos/:id/complete` → 200
   - 모든 엔드포인트에 `auth.middleware` 적용
-- [ ] 수락 기준 충족
+- [x] 수락 기준 충족
   - 카테고리 없이 등록 → "기본" 카테고리 자동 배정 (BR-03)
   - 종료일 < 시작일 → 400 (BR-06)
   - 타인 할 일 수정/삭제 → 403 (BR-05)
