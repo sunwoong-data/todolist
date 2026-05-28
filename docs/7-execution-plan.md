@@ -90,14 +90,14 @@
 **목적**: 미들웨어(CORS, JSON 파싱, 에러 핸들러)와 라우터 등록 구조를 만든다.
 
 **의존성**
-- [ ] BE-01 완료
+- [x] BE-01 완료
 
 **완료 조건**
-- [ ] `backend/src/app.ts`에 Express 앱 설정이 구현되어 있다
-- [ ] `backend/src/index.ts`에서 앱을 `process.env.PORT`로 구동한다
-- [ ] CORS 미들웨어가 `CORS_ORIGIN` 환경변수 기반으로 설정되어 있다
-- [ ] `backend/src/middlewares/errorHandler.ts`가 구현되어 있고 표준 에러 응답 형식(`{ error: { code, message } }`)을 반환한다
-- [ ] `backend/src/types/` 아래 `user.ts`, `todo.ts`, `category.ts` 타입 파일이 작성되어 있다
+- [x] `backend/src/app.ts`에 Express 앱 설정이 구현되어 있다
+- [x] `backend/src/index.ts`에서 앱을 `process.env.PORT`로 구동한다
+- [x] CORS 미들웨어가 `CORS_ORIGIN` 환경변수 기반으로 설정되어 있다
+- [x] `backend/src/middlewares/errorHandler.ts`가 구현되어 있고 표준 에러 응답 형식(`{ error: { code, message } }`)을 반환한다
+- [x] `backend/src/types/` 아래 `user.ts`, `todo.ts`, `category.ts` 타입 파일이 작성되어 있다
 
 ---
 
