@@ -2,15 +2,17 @@
 
 ---
 
-**버전**: v1.1  
+**버전**: v1.2
 **작성자**: sunwoong-data  
 **작성일**: 2026-05-27  
+**최종 수정일**: 2026-05-28
 **참조 문서**: `docs/2-PRD.md`, `docs/4-architecture-principles.md`
 
 | 버전 | 날짜       | 변경 내용                       |
 | ---- | ---------- | ------------------------------- |
 | v1.0 | 2026-05-27 | 최초 작성 — 4개 다이어그램 포함 |
 | v1.1 | 2026-05-27 | 1번 다이어그램 FE 스택에 react-i18next [v2] 추가, 4번 시퀀스 "React" → "React 19" 통일 |
+| v1.2 | 2026-05-28 | 백엔드 파일 경로 `.ts` → `.js` 반영. Swagger UI 엔드포인트 추가 |
 
 ---
 
@@ -312,23 +314,26 @@ frontend/src/
 
 backend/src/
 ├── routes/                   # 라우터 — HTTP 경로
-│   ├── auth.router.ts
-│   ├── todos.router.ts
-│   ├── categories.router.ts
-│   └── users.router.ts
+│   ├── auth.router.js
+│   ├── todos.router.js
+│   ├── categories.router.js
+│   └── users.router.js
 ├── services/                 # 비즈니스 로직
-│   ├── auth.service.ts
-│   ├── todo.service.ts
-│   ├── category.service.ts
-│   └── user.service.ts
+│   ├── auth.service.js
+│   ├── todo.service.js
+│   ├── category.service.js
+│   └── user.service.js
 ├── repositories/             # DB 쿼리
-│   ├── user.repository.ts
-│   ├── todo.repository.ts
-│   └── category.repository.ts
+│   ├── user.repository.js
+│   ├── todo.repository.js
+│   └── category.repository.js
 ├── middlewares/
-│   └── auth.middleware.ts
+│   ├── auth.middleware.js
+│   └── errorHandler.js
+├── utils/
+│   └── logger.js             # 콘솔 로거
 └── db/
-    └── pool.ts               # pg Pool 설정
+    └── pool.js               # pg Pool 설정
 ```
 
 ### 8-2. 레이어 간 호출 원칙
@@ -353,10 +358,11 @@ backend/src/
 
 모든 Todo, Category 조회/수정/삭제 시:
 
-```typescript
-// 서비스에서 필수 검증
-if (todo.user_id !== userId) {
-  throw new ForbiddenError("권한이 없습니다.");
+```javascript
+// 서비스에서 필수 검증 (todo.service.js)
+const existing = await todoRepo.findByIdAndUserId(id, userId);
+if (!existing) {
+  throw new AppError(403, 'FORBIDDEN', '다른 사용자의 할 일에 접근할 수 없습니다.');
 }
 ```
 

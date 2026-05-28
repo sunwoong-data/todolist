@@ -61,9 +61,9 @@
 
 **완료 조건**
 - [x] `backend/package.json`이 생성되고 의존성이 설치되어 있다
-  - dependencies: `express`, `pg`, `bcrypt`, `jsonwebtoken`, `cors`, `dotenv`
-  - devDependencies: `typescript`, `@types/*`, `ts-node`, `nodemon`, `eslint`, `prettier`
-- [x] `backend/tsconfig.json`에 `"strict": true`가 설정되어 있다
+  - dependencies: `express`, `pg`, `bcrypt`, `jsonwebtoken`, `cors`, `dotenv`, `swagger-ui-express`
+  - devDependencies: `jest`, `supertest`, `nodemon`
+  - 백엔드는 TypeScript 없이 순수 JavaScript(CommonJS)로 구현한다
 - [x] `backend/.env.example`이 `docs/4-architecture-principles.md` 섹션 1-4 기준으로 작성되어 있다
 - [x] `backend/.env`가 로컬 환경값으로 채워져 있다 (gitignore 확인)
 - [x] `npm run dev` 실행 시 서버가 `PORT=3000`으로 시작된다
@@ -79,7 +79,7 @@
 - [x] DB-01 완료
 
 **완료 조건**
-- [x] `backend/src/db/pool.ts`가 `docs/4-architecture-principles.md` 섹션 5-5 예시 기준으로 구현되어 있다
+- [x] `backend/src/db/pool.js`가 `docs/4-architecture-principles.md` 섹션 5-5 예시 기준으로 구현되어 있다
 - [x] `max: 20`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 2000` 설정이 적용되어 있다
 - [x] 서버 시작 시 DB 연결이 성공한다 (연결 실패 시 에러 로그 출력)
 
@@ -93,11 +93,12 @@
 - [x] BE-01 완료
 
 **완료 조건**
-- [x] `backend/src/app.ts`에 Express 앱 설정이 구현되어 있다
-- [x] `backend/src/index.ts`에서 앱을 `process.env.PORT`로 구동한다
+- [x] `backend/src/app.js`에 Express 앱 설정이 구현되어 있다
+- [x] `backend/src/index.js`에서 앱을 `process.env.PORT`로 구동한다
 - [x] CORS 미들웨어가 `CORS_ORIGIN` 환경변수 기반으로 설정되어 있다
-- [x] `backend/src/middlewares/errorHandler.ts`가 구현되어 있고 표준 에러 응답 형식(`{ error: { code, message } }`)을 반환한다
-- [x] `backend/src/types/` 아래 `user.ts`, `todo.ts`, `category.ts` 타입 파일이 작성되어 있다
+- [x] `backend/src/middlewares/errorHandler.js`가 구현되어 있고 표준 에러 응답 형식(`{ error: { code, message } }`)을 반환한다
+- [x] `backend/src/utils/logger.js`에 콘솔 로거(info / error / warn)가 구현되어 있다
+- [x] Swagger UI가 `/api-docs` 경로에 마운트되어 있다 (`swagger-ui-express` + `backend/swagger.json`)
 
 ---
 
@@ -110,18 +111,18 @@
 - [x] BE-03 완료
 
 **완료 조건**
-- [x] `backend/src/repositories/user.repository.ts` 구현
+- [x] `backend/src/repositories/user.repository.js` 구현
   - `findByEmail(email)`, `create(dto)` 함수
   - 파라미터화된 쿼리(`$1`, `$2`) 사용
-- [x] `backend/src/repositories/category.repository.ts` 구현
+- [x] `backend/src/repositories/category.repository.js` 구현
   - `createDefaultCategory(userId)`, `findByUserId(userId)`, `findDefaultByUserId(userId)` 함수
-- [x] `backend/src/services/auth.service.ts` 구현
+- [x] `backend/src/services/auth.service.js` 구현
   - `register()`: bcrypt 해싱, 중복 이메일 409 처리, 기본 카테고리 자동 생성(BR-04)
   - `login()`: bcrypt.compare() 검증, JWT 발급 (payload: `{ userId }`, 만료: `JWT_EXPIRES_IN`)
-- [x] `backend/src/routes/auth.router.ts` 구현
+- [x] `backend/src/routes/auth.router.js` 구현
   - `POST /api/auth/register` → 201 반환
   - `POST /api/auth/login` → 200 + JWT 반환
-- [x] `backend/src/middlewares/auth.middleware.ts` 구현
+- [x] `backend/src/middlewares/auth.middleware.js` 구현
   - `Authorization: Bearer <token>` 헤더 검증
   - 토큰 없음 → 401, 유효하지 않은 토큰 → 401
   - 검증 성공 시 `req.userId` 주입
@@ -141,13 +142,13 @@
 - [x] BE-04 완료 (인증 미들웨어 필요)
 
 **완료 조건**
-- [x] `backend/src/repositories/user.repository.ts`에 `findById(userId)`, `update(userId, dto)` 추가
-- [x] `backend/src/services/user.service.ts` 구현
+- [x] `backend/src/repositories/user.repository.js`에 `findById(userId)`, `update(userId, dto)` 추가
+- [x] `backend/src/services/user.service.js` 구현
   - `getProfile()`: 비밀번호 필드 응답 제외
   - `updateProfile()`: 이름, 비밀번호(bcrypt 재해시) 수정
   - 테마 값 유효성 검증: `['light', 'dark']` 외 → 400 (BR-13)
   - 언어 값 유효성 검증: `['ko', 'en', 'ja']` 외 → 400 (BR-15)
-- [x] `backend/src/routes/users.router.ts` 구현
+- [x] `backend/src/routes/users.router.js` 구현
   - `GET /api/users/me` → 200 + 사용자 정보 (비밀번호 제외)
   - `PATCH /api/users/me` → 200
   - 두 엔드포인트 모두 `auth.middleware` 적용
@@ -163,10 +164,10 @@
 - [x] BE-04 완료
 
 **완료 조건**
-- [x] `backend/src/services/category.service.ts` 구현
+- [x] `backend/src/services/category.service.js` 구현
   - `getCategories(userId)`: 해당 사용자 카테고리만 반환 (BR-02)
   - `createCategory(userId, dto)`: 동일 사용자 내 이름 중복 → 409
-- [x] `backend/src/routes/categories.router.ts` 구현
+- [x] `backend/src/routes/categories.router.js` 구현
   - `GET /api/categories` → 200 + 카테고리 목록
   - `POST /api/categories` → 201
   - 두 엔드포인트 모두 `auth.middleware` 적용
@@ -183,18 +184,18 @@
 - [x] BE-06 완료 (기본 카테고리 조회 필요)
 
 **완료 조건**
-- [x] `backend/src/repositories/todo.repository.ts` 구현
-  - `findByUserId(userId, filters)`: status, category_id 필터 쿼리 포함 (BR-08~BR-12)
+- [x] `backend/src/repositories/todo.repository.js` 구현
+  - `findByUserId(userId, filter)`: status, category_id 필터 쿼리 포함 (BR-08~BR-12)
   - `findByIdAndUserId(id, userId)`: 소유권 검증 포함 조회
   - `create(dto)`, `update(id, dto)`, `deleteById(id)`, `markComplete(id)` 함수
   - 모든 쿼리 파라미터화 필수
-- [x] `backend/src/services/todo.service.ts` 구현
+- [x] `backend/src/services/todo.service.js` 구현
   - `createTodo()`: BR-06 날짜 유효성, BR-03 기본 카테고리 자동 배정
   - `getTodos()`: 소유 확인 후 필터 적용 조회
   - `updateTodo()`: 소유권 검증(BR-05), 날짜 유효성(BR-06)
   - `deleteTodo()`: 소유권 검증(BR-05), 없는 항목 → 404
   - `completeTodo()`: 소유권 검증(BR-05)
-- [x] `backend/src/routes/todos.router.ts` 구현
+- [x] `backend/src/routes/todos.router.js` 구현
   - `GET /api/todos` (쿼리: `?status=&category_id=`)
   - `POST /api/todos` → 201
   - `GET /api/todos/:id`
@@ -220,11 +221,12 @@
 - [x] DB-02 완료
 
 **완료 조건**
-- [x] UC-01~UC-08 전체 유스케이스 API 동작 확인 (HTTP 클라이언트로 수동 테스트)
+- [x] UC-01~UC-08 전체 유스케이스 API 동작 확인 (curl 및 Swagger UI로 수동 테스트)
 - [x] BR-01~BR-12 비즈니스 규칙 적용 확인
 - [x] 타인 데이터 접근 시 403 반환 확인 (BR-02)
 - [x] API 응답 시간 500ms 이내 (일반 CRUD 기준)
-- [x] TypeScript 빌드 에러 없음 (`tsc --noEmit`)
+- [x] Jest 통합 테스트 71개 전부 통과 (`npm test`)
+- [x] Swagger UI (`GET /api-docs`) 정상 접근 확인
 
 ---
 

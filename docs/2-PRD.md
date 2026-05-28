@@ -13,6 +13,7 @@
 | v1.1 | 2026-05-27 | v2 다크/라이트 모드 기능 추가 (UC-09, User 모델 theme_preference 반영) |
 | v1.2 | 2026-05-27 | v2 다국어 지원 추가 (한국어/영어/일본어, UC-10, i18n 기술 스택 반영) |
 | v1.3 | 2026-05-27 | 확정 스택 표에 Vite, React Router 추가 (일관성 수정) |
+| v1.4 | 2026-05-28 | 백엔드 TypeScript → JavaScript 전환 반영. swagger-ui-express 추가 |
 
 ---
 
@@ -286,9 +287,10 @@
 | 상태 관리 | Zustand |
 | 서버 상태 | TanStack Query |
 | 다국어 지원 | react-i18next (v2, 한국어/영어/일본어) |
-| 백엔드 | Node.js + Express |
+| 백엔드 | Node.js + Express (JavaScript / CommonJS) |
 | DB 접근 | pg 라이브러리 (raw SQL) |
 | 데이터베이스 | PostgreSQL 17 |
+| API 문서 | swagger-ui-express (`GET /api-docs`) |
 
 ### 제약사항
 

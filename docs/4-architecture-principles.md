@@ -2,14 +2,16 @@
 
 ---
 
-**버전**: v1.0
+**버전**: v1.1
 **작성자**: sunwoong-data
 **작성일**: 2026-05-27
+**최종 수정일**: 2026-05-28
 **참조 문서**: `docs/1-domain-definition.md`, `docs/2-PRD.md`, `docs/3-user-scenario.md`
 
 | 버전 | 날짜       | 변경 내용 |
 | ---- | ---------- | --------- |
 | v1.0 | 2026-05-27 | 최초 작성 |
+| v1.1 | 2026-05-28 | 백엔드 TypeScript → JavaScript(CommonJS) 전환 반영. 파일 확장자, 디렉토리 구조, 코드 예시 업데이트. Swagger UI 엔드포인트 추가 반영 |
 
 ---
 
@@ -140,9 +142,9 @@ const result = await pool.query(
 | React 컴포넌트 파일    | PascalCase                 | `TodoItem.tsx`, `CategoryFilter.tsx`       |
 | 훅 파일                | camelCase, `use` 접두사    | `useTodos.ts`, `useAuth.ts`                |
 | 유틸/헬퍼 파일         | camelCase                  | `dateUtils.ts`, `statusCalc.ts`            |
-| 백엔드 라우터 파일     | camelCase, 도메인명 복수형 | `todos.router.ts`, `categories.router.ts`  |
-| 백엔드 서비스 파일     | camelCase, 도메인명        | `todo.service.ts`, `auth.service.ts`       |
-| 백엔드 레포지토리 파일 | camelCase, 도메인명        | `todo.repository.ts`, `user.repository.ts` |
+| 백엔드 라우터 파일     | camelCase, 도메인명 복수형 | `todos.router.js`, `categories.router.js`  |
+| 백엔드 서비스 파일     | camelCase, 도메인명        | `todo.service.js`, `auth.service.js`       |
+| 백엔드 레포지토리 파일 | camelCase, 도메인명        | `todo.repository.js`, `user.repository.js` |
 | DB 테이블명            | snake_case 복수형          | `users`, `categories`, `todos`             |
 | DB 컬럼명              | snake_case                 | `user_id`, `is_completed`, `created_at`    |
 | API 경로               | kebab-case, 복수 명사      | `/api/todos`, `/api/categories`            |
@@ -166,6 +168,9 @@ PATCH  /api/todos/:id/complete     # UC-08 할 일 완료 처리
 
 GET    /api/categories             # 카테고리 목록 조회
 POST   /api/categories             # 카테고리 생성
+
+GET    /api-docs                   # Swagger UI (개발 환경용 API 문서)
+GET    /health                     # 헬스체크
 ```
 
 필터 파라미터 예시 (UC-05, BR-08~BR-12):
@@ -245,9 +250,15 @@ GET /api/todos?status=in_progress&category_id=uuid-value
 
 **근거**: 타입 오류와 코드 스타일 불일치를 빌드 단계에서 차단하면 런타임 오류를 사전에 예방할 수 있다.
 
+**프론트엔드 (TypeScript)**
 - TypeScript strict 모드 활성화 (`"strict": true`)
 - `any` 타입 사용 금지 — 도메인 타입을 명시적으로 정의
 - ESLint + Prettier 설정으로 코드 스타일 통일
+
+**백엔드 (JavaScript / CommonJS)**
+- 백엔드는 TypeScript 없이 순수 JavaScript(CommonJS) 로 구현한다
+- `require` / `module.exports` 방식을 사용한다
+- TypeScript 컴파일 단계 없이 Node.js에서 직접 실행한다
 
 ---
 
@@ -295,11 +306,11 @@ CREATE INDEX idx_categories_user_id ON categories(user_id);
 
 **근거**: 동시 접속 1,000명 처리 요건을 만족하려면 DB 커넥션을 효율적으로 관리해야 한다.
 
-```typescript
-// backend/src/db/pool.ts
-import { Pool } from "pg";
+```javascript
+// backend/src/db/pool.js
+const { Pool } = require('pg');
 
-export const pool = new Pool({
+const pool = new Pool({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
   database: process.env.DB_NAME,
@@ -309,6 +320,8 @@ export const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 });
+
+module.exports = { pool };
 ```
 
 ### 5-6. HTTPS
@@ -433,49 +446,50 @@ export interface User {
 
 ## 7. 백엔드 디렉토리 구조
 
+> **참고**: 백엔드는 TypeScript 없이 순수 JavaScript(CommonJS)로 구현한다. `require` / `module.exports` 방식을 사용하며, 빌드 단계 없이 Node.js에서 직접 실행한다.
+
 ```
 backend/
 ├── src/
-│   ├── index.ts                   # 서버 진입점 (Express 앱 초기화, 포트 설정)
-│   ├── app.ts                     # Express 앱 설정 (미들웨어, 라우터 등록)
+│   ├── index.js                   # 서버 진입점 (Express 앱 초기화, 포트 설정)
+│   ├── app.js                     # Express 앱 설정 (미들웨어, 라우터 등록, Swagger UI)
 │   │
 │   ├── db/
-│   │   └── pool.ts                # pg Pool 인스턴스 (커넥션 풀 설정)
+│   │   └── pool.js                # pg Pool 인스턴스 (커넥션 풀 설정)
 │   │
 │   ├── routes/                    # 라우터 — HTTP 경로 정의, 미들웨어 적용
-│   │   ├── auth.router.ts         # POST /api/auth/register, /api/auth/login
-│   │   ├── todos.router.ts        # GET/POST /api/todos, PATCH/DELETE /api/todos/:id
-│   │   ├── categories.router.ts   # GET/POST /api/categories
-│   │   └── users.router.ts        # GET/PATCH /api/users/me
+│   │   ├── auth.router.js         # POST /api/auth/register, /api/auth/login
+│   │   ├── todos.router.js        # GET/POST /api/todos, PATCH/DELETE /api/todos/:id
+│   │   ├── categories.router.js   # GET/POST /api/categories
+│   │   └── users.router.js        # GET/PATCH /api/users/me
 │   │
 │   ├── services/                  # 서비스 — 비즈니스 규칙 처리
-│   │   ├── auth.service.ts        # 회원가입(BR-04), 로그인(BR-01), JWT 발급
-│   │   ├── todo.service.ts        # CRUD, 날짜 유효성(BR-06), 소유권(BR-05), 기본 카테고리 배정(BR-03)
-│   │   ├── category.service.ts    # 카테고리 생성, 목록 조회
-│   │   └── user.service.ts        # 프로필 수정, 테마(BR-13)/언어(BR-15) 유효성 검증 및 저장
+│   │   ├── auth.service.js        # 회원가입(BR-04), 로그인(BR-01), JWT 발급
+│   │   ├── todo.service.js        # CRUD, 날짜 유효성(BR-06), 소유권(BR-05), 기본 카테고리 배정(BR-03)
+│   │   ├── category.service.js    # 카테고리 생성, 목록 조회
+│   │   └── user.service.js        # 프로필 수정, 테마(BR-13)/언어(BR-15) 유효성 검증 및 저장
 │   │
 │   ├── repositories/              # 레포지토리 — SQL 쿼리 실행 (pg 직접 사용)
-│   │   ├── user.repository.ts     # users 테이블 CRUD
-│   │   ├── todo.repository.ts     # todos 테이블 CRUD, 필터 쿼리(BR-08~BR-12)
-│   │   └── category.repository.ts # categories 테이블 CRUD
+│   │   ├── user.repository.js     # users 테이블 CRUD
+│   │   ├── todo.repository.js     # todos 테이블 CRUD, 필터 쿼리(BR-08~BR-12)
+│   │   └── category.repository.js # categories 테이블 CRUD
 │   │
 │   ├── middlewares/               # Express 미들웨어
-│   │   ├── auth.middleware.ts     # JWT 검증, req.userId 주입 (BR-01)
-│   │   └── errorHandler.ts        # 전역 에러 핸들러 (표준 에러 응답 형식)
+│   │   ├── auth.middleware.js     # JWT 검증, req.userId 주입 (BR-01)
+│   │   └── errorHandler.js        # 전역 에러 핸들러 (표준 에러 응답 형식)
 │   │
-│   └── types/                     # TypeScript 타입 정의
-│       ├── todo.ts                # Todo, CreateTodoDto, UpdateTodoDto 등
-│       ├── category.ts            # Category, CreateCategoryDto 등
-│       └── user.ts                # User, UpdateUserDto, Theme, Language 등
+│   └── utils/
+│       └── logger.js              # 콘솔 로거 (info / error / warn)
 │
-├── migrations/                    # DB 마이그레이션 SQL 파일
-│   ├── 001_create_tables.sql      # users, categories, todos 테이블 생성
-│   ├── 002_create_indexes.sql     # todos.user_id, todos.category_id 인덱스
-│   └── 003_v2_user_preferences.sql # theme_preference, language_preference 컬럼 추가
+├── swagger.json                   # OpenAPI 3.0 스펙 (Swagger UI 소스)
+├── tests/                         # Jest 통합 테스트
+│   ├── server.test.js
+│   ├── db/pool.test.js
+│   ├── middlewares/
+│   └── routes/
 │
 ├── .env                           # 환경 변수 (gitignore)
 ├── .env.example                   # 환경 변수 예시
-├── tsconfig.json
 └── package.json
 ```
 
@@ -483,83 +497,91 @@ backend/
 
 **레포지토리 — pg 직접 사용 (SQL Injection 방지)**
 
-```typescript
-// src/repositories/todo.repository.ts
+```javascript
+// src/repositories/todo.repository.js
 
-import { pool } from "../db/pool";
+const { pool } = require('../db/pool');
 
-export async function findTodosByUserId(userId: string, status?: string, categoryId?: string) {
-  const conditions = ["user_id = $1"];
-  const params: unknown[] = [userId];
+async function findByUserId(userId, filter = {}) {
+  const conditions = ['user_id = $1'];
+  const params = [userId];
   let idx = 2;
 
-  if (status === "in_progress") {
+  if (filter.status === 'in_progress') {
     conditions.push(`is_completed = false AND start_date <= CURRENT_DATE AND (end_date IS NULL OR end_date >= CURRENT_DATE)`);
-  } else if (status === "overdue") {
+  } else if (filter.status === 'overdue') {
     conditions.push(`is_completed = false AND end_date < CURRENT_DATE`);
-  } else if (status === "completed") {
+  } else if (filter.status === 'completed') {
     conditions.push(`is_completed = true`);
-  } else if (status === "pending") {
+  } else if (filter.status === 'pending') {
     conditions.push(`is_completed = false AND (start_date IS NULL OR start_date > CURRENT_DATE)`);
   }
 
-  if (categoryId) {
+  if (filter.categoryId) {
     conditions.push(`category_id = $${idx}`);
-    params.push(categoryId);
+    params.push(filter.categoryId);
     idx++;
   }
 
-  const sql = `SELECT * FROM todos WHERE ${conditions.join(" AND ")} ORDER BY created_at DESC`;
+  const sql = `SELECT * FROM todos WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC`;
   const result = await pool.query(sql, params);
   return result.rows;
 }
+
+module.exports = { findByUserId, /* ... */ };
 ```
 
 **서비스 — 비즈니스 규칙 적용**
 
-```typescript
-// src/services/todo.service.ts
+```javascript
+// src/services/todo.service.js
 
-import { findDefaultCategoryByUserId } from "../repositories/category.repository";
+const { AppError } = require('../middlewares/errorHandler');
+const categoryRepo = require('../repositories/category.repository');
+const todoRepo = require('../repositories/todo.repository');
 
-export async function createTodo(userId: string, dto: CreateTodoDto) {
+async function createTodo(userId, dto) {
   // BR-06: 종료일 < 시작일 금지
   if (dto.startDate && dto.endDate && dto.endDate < dto.startDate) {
-    throw new ValidationError("종료일은 시작일보다 이전일 수 없습니다.");
+    throw new AppError(400, 'INVALID_DATE', '종료일은 시작일보다 이전일 수 없습니다.');
   }
 
   // BR-03: 카테고리 미지정 시 기본 카테고리 자동 배정
   let categoryId = dto.categoryId;
   if (!categoryId) {
-    const defaultCategory = await findDefaultCategoryByUserId(userId);
-    categoryId = defaultCategory.id;
+    const defaultCat = await categoryRepo.findDefaultByUserId(userId);
+    categoryId = defaultCat.id;
   }
 
-  return createTodoInDb({ ...dto, userId, categoryId });
+  return todoRepo.create({ ...dto, userId, categoryId });
 }
+
+module.exports = { createTodo, /* ... */ };
 ```
 
 **인증 미들웨어**
 
-```typescript
-// src/middlewares/auth.middleware.ts
+```javascript
+// src/middlewares/auth.middleware.js
 
-import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+const jwt = require('jsonwebtoken');
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers.authorization?.split(" ")[1];
+function authMiddleware(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ error: { code: "UNAUTHORIZED", message: "인증이 필요합니다." } });
+    res.status(401).json({ error: { code: 'UNAUTHORIZED', message: '인증이 필요합니다.' } });
+    return;
   }
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = payload.userId;
     next();
   } catch {
-    return res.status(401).json({ error: { code: "INVALID_TOKEN", message: "유효하지 않은 토큰입니다." } });
+    res.status(401).json({ error: { code: 'INVALID_TOKEN', message: '유효하지 않은 토큰입니다.' } });
   }
 }
+
+module.exports = { authMiddleware };
 ```
 
 ### DB 스키마 (마이그레이션 참고)
