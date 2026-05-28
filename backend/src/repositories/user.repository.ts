@@ -1,5 +1,5 @@
 import { pool } from '../db/pool';
-import { User, Theme, Language } from '../types/user';
+import { User, Theme, Language, UpdateUserDto } from '../types/user';
 
 export interface CreateUserDto {
   email: string;
@@ -48,6 +48,39 @@ export async function findById(id: string): Promise<User | null> {
     [id],
   );
   return result.rows.length > 0 ? mapRow(result.rows[0]) : null;
+}
+
+export async function update(userId: string, dto: Partial<UpdateUserDto> & { password?: string }): Promise<User> {
+  const fields: string[] = [];
+  const values: unknown[] = [];
+  let idx = 1;
+
+  if (dto.name !== undefined) {
+    fields.push(`name = $${idx++}`);
+    values.push(dto.name);
+  }
+  if (dto.password !== undefined) {
+    fields.push(`password = $${idx++}`);
+    values.push(dto.password);
+  }
+  if (dto.themePreference !== undefined) {
+    fields.push(`theme_preference = $${idx++}`);
+    values.push(dto.themePreference);
+  }
+  if (dto.languagePreference !== undefined) {
+    fields.push(`language_preference = $${idx++}`);
+    values.push(dto.languagePreference);
+  }
+
+  fields.push(`updated_at = NOW()`);
+  values.push(userId);
+
+  const result = await pool.query(
+    `UPDATE users SET ${fields.join(', ')} WHERE id = $${idx}
+     RETURNING id, email, name, theme_preference, language_preference, created_at, updated_at`,
+    values,
+  );
+  return mapRow(result.rows[0]);
 }
 
 export async function create(dto: CreateUserDto): Promise<User> {

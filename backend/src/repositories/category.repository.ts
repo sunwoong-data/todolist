@@ -35,3 +35,13 @@ export async function findDefaultByUserId(userId: string): Promise<Category | nu
   );
   return result.rows.length > 0 ? mapRow(result.rows[0]) : null;
 }
+
+export async function create(userId: string, name: string): Promise<Category> {
+  const result = await pool.query(
+    `INSERT INTO categories (user_id, name, is_default)
+     VALUES ($1, $2, false)
+     RETURNING id, user_id, name, is_default`,
+    [userId, name],
+  );
+  return mapRow(result.rows[0]);
+}

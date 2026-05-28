@@ -138,20 +138,20 @@
 **목적**: 내 정보 조회 및 수정 API를 구현한다.
 
 **의존성**
-- [ ] BE-04 완료 (인증 미들웨어 필요)
+- [x] BE-04 완료 (인증 미들웨어 필요)
 
 **완료 조건**
-- [ ] `backend/src/repositories/user.repository.ts`에 `findById(userId)`, `update(userId, dto)` 추가
-- [ ] `backend/src/services/user.service.ts` 구현
+- [x] `backend/src/repositories/user.repository.ts`에 `findById(userId)`, `update(userId, dto)` 추가
+- [x] `backend/src/services/user.service.ts` 구현
   - `getProfile()`: 비밀번호 필드 응답 제외
   - `updateProfile()`: 이름, 비밀번호(bcrypt 재해시) 수정
   - 테마 값 유효성 검증: `['light', 'dark']` 외 → 400 (BR-13)
   - 언어 값 유효성 검증: `['ko', 'en', 'ja']` 외 → 400 (BR-15)
-- [ ] `backend/src/routes/users.router.ts` 구현
+- [x] `backend/src/routes/users.router.ts` 구현
   - `GET /api/users/me` → 200 + 사용자 정보 (비밀번호 제외)
   - `PATCH /api/users/me` → 200
   - 두 엔드포인트 모두 `auth.middleware` 적용
-- [ ] 비밀번호는 응답 JSON에 절대 포함되지 않는다 (BR-02 + 5-2 원칙)
+- [x] 비밀번호는 응답 JSON에 절대 포함되지 않는다 (BR-02 + 5-2 원칙)
 
 ---
 
@@ -160,17 +160,17 @@
 **목적**: 카테고리 목록 조회 및 생성 API를 구현한다.
 
 **의존성**
-- [ ] BE-04 완료
+- [x] BE-04 완료
 
 **완료 조건**
-- [ ] `backend/src/services/category.service.ts` 구현
+- [x] `backend/src/services/category.service.ts` 구현
   - `getCategories(userId)`: 해당 사용자 카테고리만 반환 (BR-02)
   - `createCategory(userId, dto)`: 동일 사용자 내 이름 중복 → 409
-- [ ] `backend/src/routes/categories.router.ts` 구현
+- [x] `backend/src/routes/categories.router.ts` 구현
   - `GET /api/categories` → 200 + 카테고리 목록
   - `POST /api/categories` → 201
   - 두 엔드포인트 모두 `auth.middleware` 적용
-- [ ] 다른 사용자의 카테고리는 절대 반환되지 않는다 (BR-02)
+- [x] 다른 사용자의 카테고리는 절대 반환되지 않는다 (BR-02)
 
 ---
 

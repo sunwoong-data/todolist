@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler';
 import authRouter from './routes/auth.router';
+import usersRouter from './routes/users.router';
+import categoriesRouter from './routes/categories.router';
 
 const app = express();
 
@@ -15,6 +17,8 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/categories', categoriesRouter);
 
 app.use(errorHandler);
 
