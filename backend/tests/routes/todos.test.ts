@@ -271,3 +271,105 @@ describe('PATCH /api/todos/:id/complete', () => {
     expect(res.status).toBe(403);
   });
 });
+
+// ── BR-08: category_id 필터 ─────────────────────────────────────
+describe('GET /api/todos - category_id 필터 (BR-08)', () => {
+  const email = `todo_cat_filter_${Date.now()}@test.com`;
+  let token: string;
+  let categoryId: string;
+
+  beforeAll(async () => {
+    token = await registerAndLogin(email, '카테고리필터테스터');
+    // 추가 카테고리 생성
+    const catRes = await request(app)
+      .post('/api/categories')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: '업무카테고리' });
+    categoryId = catRes.body.category.id;
+    // 업무 카테고리로 할 일 생성
+    await request(app).post('/api/todos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: '업무할일', categoryId });
+    // 기본 카테고리로 할 일 생성 (카테고리 미지정)
+    await request(app).post('/api/todos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: '기본할일' });
+  });
+  afterAll(async () => { await cleanupUser(email); });
+
+  it('category_id 필터로 해당 카테고리의 할 일만 반환된다 (BR-08)', async () => {
+    const res = await request(app)
+      .get(`/api/todos?category_id=${categoryId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(200);
+    const titles = res.body.todos.map((t: { title: string }) => t.title);
+    expect(titles).toContain('업무할일');
+    expect(titles).not.toContain('기본할일');
+  });
+});
+
+// ── BR-11: completed 필터 ───────────────────────────────────────
+describe('GET /api/todos - completed 필터 (BR-11)', () => {
+  const email = `todo_completed_${Date.now()}@test.com`;
+  let token: string;
+
+  beforeAll(async () => {
+    token = await registerAndLogin(email, '완료필터테스터');
+    // 완료 처리할 항목
+    const res = await request(app).post('/api/todos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: '완료된항목' });
+    const todoId = res.body.todo.id as string;
+    await request(app).patch(`/api/todos/${todoId}/complete`)
+      .set('Authorization', `Bearer ${token}`);
+    // 미완료 항목
+    await request(app).post('/api/todos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: '미완료항목' });
+  });
+  afterAll(async () => { await cleanupUser(email); });
+
+  it('status=completed 필터로 완료된 항목만 반환된다 (BR-11)', async () => {
+    const res = await request(app)
+      .get('/api/todos?status=completed')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(200);
+    const titles = res.body.todos.map((t: { title: string }) => t.title);
+    expect(titles).toContain('완료된항목');
+    expect(titles).not.toContain('미완료항목');
+  });
+
+  it('완료된 항목은 isCompleted가 true이다', async () => {
+    const res = await request(app)
+      .get('/api/todos?status=completed')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.body.todos.every((t: { isCompleted: boolean }) => t.isCompleted === true)).toBe(true);
+  });
+});
+
+// ── 응답 시간 검증 (500ms 이내) ─────────────────────────────────
+describe('API 응답 시간 (500ms 이내)', () => {
+  const email = `todo_perf_${Date.now()}@test.com`;
+  let token: string;
+
+  beforeAll(async () => { token = await registerAndLogin(email, '성능테스터'); });
+  afterAll(async () => { await cleanupUser(email); });
+
+  it('GET /api/todos 응답이 500ms 이내이다', async () => {
+    const start = Date.now();
+    const res = await request(app).get('/api/todos').set('Authorization', `Bearer ${token}`);
+    const elapsed = Date.now() - start;
+    expect(res.status).toBe(200);
+    expect(elapsed).toBeLessThan(500);
+  });
+
+  it('POST /api/todos 응답이 500ms 이내이다', async () => {
+    const start = Date.now();
+    const res = await request(app).post('/api/todos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: '성능테스트항목' });
+    const elapsed = Date.now() - start;
+    expect(res.status).toBe(201);
+    expect(elapsed).toBeLessThan(500);
+  });
+});
