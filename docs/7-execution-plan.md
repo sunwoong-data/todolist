@@ -27,10 +27,10 @@
 - 없음 (최초 착수 가능)
 
 **완료 조건**
-- [ ] PostgreSQL 17 인스턴스가 로컬에서 실행 중이다
-- [ ] `todolist` 데이터베이스가 생성되어 있다
-- [ ] `postgres` 유저로 `localhost:5432/todolist` 접속이 성공한다
-- [ ] `backend/.env` 파일에 DB 접속 정보가 설정되어 있다 (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`)
+- [x] PostgreSQL 17 인스턴스가 로컬에서 실행 중이다
+- [x] `todolist` 데이터베이스가 생성되어 있다
+- [x] `postgres` 유저로 `localhost:5432/todolist` 접속이 성공한다
+- [x] `backend/.env` 파일에 DB 접속 정보가 설정되어 있다 (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`)
 
 ---
 
@@ -39,14 +39,14 @@
 **목적**: `database/schema.sql`을 실행하여 테이블, 인덱스, 제약조건을 생성한다.
 
 **의존성**
-- [ ] DB-01 완료
+- [x] DB-01 완료
 
 **완료 조건**
-- [ ] `users`, `categories`, `todos` 테이블이 생성되어 있다
-- [ ] `pgcrypto` 익스텐션이 활성화되어 있다
-- [ ] 인덱스 3개(`idx_categories_user_id`, `idx_todos_user_id`, `idx_todos_category_id`)가 생성되어 있다
-- [ ] UNIQUE 제약조건(`users.email`, `categories.(user_id, name)`)이 적용되어 있다
-- [ ] FK 제약조건(`categories.user_id → CASCADE`, `todos.category_id → RESTRICT`)이 적용되어 있다
+- [x] `users`, `categories`, `todos` 테이블이 생성되어 있다
+- [x] `pgcrypto` 익스텐션이 활성화되어 있다
+- [x] 인덱스 3개(`idx_categories_user_id`, `idx_todos_user_id`, `idx_todos_category_id`)가 생성되어 있다
+- [x] UNIQUE 제약조건(`users.email`, `categories.(user_id, name)`)이 적용되어 있다
+- [x] FK 제약조건(`categories.user_id → CASCADE`, `todos.category_id → RESTRICT`)이 적용되어 있다
 
 ---
 
