@@ -25,9 +25,9 @@ function LoginPage() {
       <div className="auth-card">
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-6)' }}>
           <img
-            src="/seoha.png"
+            src="/seoha-login.png"
             alt="Seoha"
-            style={{ width: 160, height: 'auto', objectFit: 'contain' }}
+            style={{ width: 'min(180px, 45vw)', height: 'auto', objectFit: 'contain' }}
           />
         </div>
 

@@ -84,21 +84,18 @@ function TodoList({
     return (
       <div
         data-testid="empty-state"
-        style={{ textAlign: 'center', padding: 'var(--space-16) 0', color: 'var(--color-text-secondary)' }}
+        style={{ textAlign: 'center', padding: 'var(--space-8) 0', color: 'var(--color-text-secondary)' }}
       >
-        <p
+        <img
+          src="/seoha-list.png"
+          alt="Seoha"
           style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '2rem',
-            fontWeight: 800,
-            fontStyle: 'italic',
-            textTransform: 'uppercase',
-            color: 'var(--color-text-disabled)',
+            width: 'min(220px, 50vw)',
+            height: 'auto',
+            objectFit: 'contain',
             marginBottom: 'var(--space-4)',
           }}
-        >
-          No Todos
-        </p>
+        />
         <p style={{ fontSize: '0.875rem' }}>{t('todo.empty')}</p>
       </div>
     )
