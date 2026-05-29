@@ -5,21 +5,22 @@ function mapRow(row) {
     id: row.id,
     userId: row.user_id,
     name: row.name,
+    avatar: row.avatar ?? null,
   };
 }
 
 async function findByUserId(userId) {
   const result = await pool.query(
-    `SELECT id, user_id, name FROM assignees WHERE user_id = $1 ORDER BY name`,
+    `SELECT id, user_id, name, avatar FROM assignees WHERE user_id = $1 ORDER BY name`,
     [userId],
   );
   return result.rows.map(mapRow);
 }
 
-async function create(userId, name) {
+async function create(userId, name, avatar) {
   const result = await pool.query(
-    `INSERT INTO assignees (user_id, name) VALUES ($1, $2) RETURNING id, user_id, name`,
-    [userId, name],
+    `INSERT INTO assignees (user_id, name, avatar) VALUES ($1, $2, $3) RETURNING id, user_id, name, avatar`,
+    [userId, name, avatar ?? null],
   );
   return mapRow(result.rows[0]);
 }

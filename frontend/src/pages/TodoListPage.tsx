@@ -1,13 +1,16 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useFilterStore } from '../store/filterStore'
 import { useGetTodos, useCompleteTodo, useDeleteTodo } from '../hooks/useTodos'
 import { useGetCategories } from '../hooks/useCategories'
+import { useGetAssignees } from '../hooks/useAssignees'
 import { calcTodoStatus, STATUS_COLOR } from '../utils/todoStatus'
 import { formatDateTime } from '../utils/formatDate'
 import NavBar from '../components/common/NavBar'
 import Button from '../components/common/Button'
-import CategoryFilter from '../components/category/CategoryFilter'
+import FilterBar from '../components/common/FilterBar'
+import ManagePanel from '../components/common/ManagePanel'
 import TodoList from '../components/todo/TodoList'
 import TodoCalendar from '../components/todo/TodoCalendar'
 
@@ -29,8 +32,11 @@ function TodoListPage() {
   const { data: todos = [], isLoading, isError, refetch } = useGetTodos(filter)
   const { data: allTodos = [] } = useGetTodos()
   const { data: categories = [] } = useGetCategories()
+  const { data: assignees = [] } = useGetAssignees()
   const { mutate: completeTodo, variables: completingId } = useCompleteTodo()
   const { mutate: deleteTodo, variables: deletingId } = useDeleteTodo()
+
+  const [managePanelOpen, setManagePanelOpen] = useState(false)
 
   const newItems = [...allTodos].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 
@@ -38,14 +44,12 @@ function TodoListPage() {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg-base)' }}>
       <NavBar />
 
-      <div className="todo-page-layout">
-        {/* 사이드바 */}
-        <aside style={{ position: 'sticky', top: 56, height: 'calc(100vh - 56px)', overflowY: 'auto' }}>
-          <CategoryFilter />
-        </aside>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 var(--space-8)' }}>
+        {/* 필터 바 */}
+        <FilterBar onManage={() => setManagePanelOpen(true)} />
 
         {/* 메인 콘텐츠 */}
-        <section style={{ padding: 'var(--space-8) var(--space-8) var(--space-10)', minWidth: 0 }}>
+        <section style={{ paddingBottom: 'var(--space-10)', minWidth: 0 }}>
 
           {/* 신규 항목 */}
           {newItems.length > 0 && (
@@ -196,6 +200,7 @@ function TodoListPage() {
             <TodoList
               todos={todos}
               categories={categories}
+              assignees={assignees}
               isLoading={isLoading}
               isError={isError}
               onComplete={(id) => completeTodo(id)}
@@ -211,6 +216,7 @@ function TodoListPage() {
                 <TodoList
                   todos={todos}
                   categories={categories}
+                  assignees={assignees}
                   isLoading={isLoading}
                   isError={isError}
                   onComplete={(id) => completeTodo(id)}
@@ -227,6 +233,7 @@ function TodoListPage() {
           )}
         </section>
       </div>
+      <ManagePanel open={managePanelOpen} onClose={() => setManagePanelOpen(false)} />
     </div>
   )
 }

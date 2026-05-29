@@ -1,11 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import type { Todo } from '../../types/todo'
 import type { Category } from '../../types/category'
+import type { Assignee } from '../../types/assignee'
 import TodoItem from './TodoItem'
 
 interface TodoListProps {
   todos: Todo[]
   categories?: Category[]
+  assignees?: Assignee[]
   isLoading: boolean
   isError: boolean
   onComplete: (id: string) => void
@@ -18,6 +20,7 @@ interface TodoListProps {
 function TodoList({
   todos,
   categories = [],
+  assignees,
   isLoading,
   isError,
   onComplete,
@@ -28,6 +31,7 @@ function TodoList({
 }: TodoListProps) {
   const { t } = useTranslation()
   const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]))
+  const assigneeMap = Object.fromEntries((assignees ?? []).map((a) => [a.id, a]))
 
   if (isLoading) {
     return (
@@ -107,6 +111,7 @@ function TodoList({
           <TodoItem
             todo={todo}
             categoryName={categoryMap[todo.categoryId]}
+            assignee={todo.assigneeId ? assigneeMap[todo.assigneeId] : undefined}
             onComplete={onComplete}
             onDelete={onDelete}
             isCompleting={completingId === todo.id}

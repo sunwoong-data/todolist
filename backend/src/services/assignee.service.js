@@ -10,7 +10,7 @@ async function getAssignees(userId) {
 async function createAssignee(userId, dto) {
   logger.info(`createAssignee userId=${userId} name=${dto.name}`);
   try {
-    return await assigneeRepo.create(userId, dto.name);
+    return await assigneeRepo.create(userId, dto.name, dto.avatar);
   } catch (err) {
     if (err && err.code === '23505') {
       throw new AppError(409, 'ASSIGNEE_CONFLICT', '이미 같은 이름의 담당자가 존재합니다.');
