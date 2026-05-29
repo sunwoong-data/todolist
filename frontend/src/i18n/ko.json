@@ -1,6 +1,6 @@
 {
   "auth": {
-    "login": "로그인",
+    "login": "@로그인@",
     "register": "회원가입",
     "email": "이메일",
     "password": "비밀번호",
