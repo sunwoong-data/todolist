@@ -25,6 +25,16 @@ router.post('/', authMiddleware, async (req, res, next) => {
   }
 });
 
+router.patch('/:id/avatar', authMiddleware, async (req, res, next) => {
+  try {
+    const assignee = await assigneeService.updateAssigneeAvatar(req.params.id, req.userId, req.body.avatar ?? null);
+    res.status(200).json({ assignee });
+  } catch (err) {
+    logger.error(`PATCH /api/assignees/${req.params.id}/avatar 오류`, err);
+    next(err);
+  }
+});
+
 router.delete('/:id', authMiddleware, async (req, res, next) => {
   try {
     await assigneeService.deleteAssignee(req.params.id, req.userId);

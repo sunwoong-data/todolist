@@ -25,6 +25,14 @@ async function create(userId, name, avatar) {
   return mapRow(result.rows[0]);
 }
 
+async function updateAvatar(id, userId, avatar) {
+  const result = await pool.query(
+    `UPDATE assignees SET avatar = $1 WHERE id = $2 AND user_id = $3 RETURNING id, user_id, name, avatar`,
+    [avatar, id, userId],
+  );
+  return result.rows.length > 0 ? mapRow(result.rows[0]) : null;
+}
+
 async function deleteById(id, userId) {
   const result = await pool.query(
     `DELETE FROM assignees WHERE id = $1 AND user_id = $2 RETURNING id`,
@@ -33,4 +41,4 @@ async function deleteById(id, userId) {
   return result.rowCount > 0;
 }
 
-module.exports = { findByUserId, create, deleteById };
+module.exports = { findByUserId, create, updateAvatar, deleteById };

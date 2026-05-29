@@ -219,9 +219,9 @@ function TodoListPage() {
               onRetry={() => refetch()}
             />
           ) : (
-            /* 캘린더 뷰: 왼쪽 목록 + 오른쪽 캘린더 (각 50%) */
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5)', alignItems: 'start' }}>
-              <div style={{ minWidth: 0 }}>
+            /* 캘린더 뷰: 왼쪽 목록 + 오른쪽 캘린더 (모바일: 캘린더 상단, 목록 하단) */
+            <div className="calendar-view-grid">
+              <div className="calendar-todo-col" style={{ minWidth: 0 }}>
                 {selectedCalendarDate ? (
                   <TodoList
                     todos={calendarTodos}
@@ -247,7 +247,7 @@ function TodoListPage() {
                   </div>
                 )}
               </div>
-              <div style={{ minWidth: 0 }}>
+              <div className="calendar-cal-col" style={{ minWidth: 0 }}>
                 <TodoCalendar
                   todos={allTodos}
                   selectedDate={selectedCalendarDate}

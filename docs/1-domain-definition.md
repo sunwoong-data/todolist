@@ -1,10 +1,10 @@
 # TodoList 도메인 정의서
 
 ---
-**버전**: v1.3  
+**버전**: v1.4  
 **작성자**: sunwoong-data  
 **작성일**: 2026-05-27  
-**최종 수정일**: 2026-05-27 (v1.3)  
+**최종 수정일**: 2026-05-30 (v1.4)  
 **상태**: 초안 (Draft)
 
 | 버전 | 날짜 | 변경 내용 |
@@ -13,6 +13,7 @@
 | v1.1 | 2026-05-27 | 비즈니스 규칙 ID 부여, UC↔규칙 연결, 수락 기준 추가 |
 | v1.2 | 2026-05-27 | v2 다크/라이트 모드 기능 반영 (User 모델 theme_preference 추가, BR-13, UC-09) |
 | v1.3 | 2026-05-27 | v2 다국어 지원 반영 (한국어/영어/일본어, User 모델 language_preference 추가, BR-15~BR-16, UC-10) |
+| v1.4 | 2026-05-30 | 신규 기능 반영: Assignees(담당자) 테이블, Anniversaries(기념일) 테이블, Todos.assignee_id FK 컬럼, Holiday API 추가 |
 
 ---
 
@@ -73,6 +74,7 @@
 | id | UUID | 고유 식별자 |
 | user_id | UUID | 할 일 소유자 (User 참조) |
 | category_id | UUID | 분류 카테고리 (Category 참조) |
+| assignee_id | UUID | 담당자 (Assignees 참조, 선택, ON DELETE SET NULL) `[신규]` |
 | title | String | 할 일 제목 |
 | description | String | 할 일 상세 설명 (선택) |
 | start_date | Date | 시작일 (선택) |
@@ -89,6 +91,25 @@
 | 진행 중 | is_completed = false AND start_date <= 오늘 AND (end_date가 없거나 end_date >= 오늘) |
 | 기한 초과 | is_completed = false AND end_date < 오늘 |
 | 완료 | is_completed = true |
+
+### Assignee (담당자) `[신규]`
+
+| 속성 | 타입 | 설명 |
+|------|------|------|
+| id | UUID | 고유 식별자 |
+| user_id | UUID | 담당자 소유자 (User 참조) |
+| name | String | 담당자 이름 |
+| avatar | Text | 프로필 이미지 URL (선택) |
+
+### Anniversary (기념일) `[신규]`
+
+| 속성 | 타입 | 설명 |
+|------|------|------|
+| id | UUID | 고유 식별자 |
+| user_id | UUID | 기념일 소유자 (User 참조) |
+| name | String | 기념일 이름 |
+| month | SmallInt | 월 (1-12) |
+| day | SmallInt | 일 (1-31) |
 
 ---
 
@@ -121,6 +142,17 @@
 ### 언어 규칙 `[v2]`
 - **BR-15** 언어 설정값은 `ko`, `en`, `ja` 만 허용하며, 기본값은 `ko`
 - **BR-16** 로그인 성공 시 서버는 `language_preference` 값을 응답에 포함하고, 클라이언트는 이를 즉시 앱 전체 UI 언어에 적용
+
+### 담당자 규칙 `[신규]`
+- **BR-17** 각 사용자는 담당자 목록을 독립적으로 관리할 수 있으며, 할 일에 담당자를 할당 가능
+- **BR-18** 할 일에서 담당자를 삭제하면 FK는 SET NULL로 처리 (담당자 자체는 유지)
+
+### 기념일 규칙 `[신규]`
+- **BR-19** 각 사용자는 기념일(생일, 기념일 등)을 월/일 기준으로 관리 가능
+- **BR-20** 기념일은 할 일과 독립적인 자신만의 관리 도구
+
+### 휴일 API 규칙 `[신규]`
+- **BR-21** 공공 데이터 포털 휴일 API를 연동하여 연/월별 공휴일 정보 제공
 
 ---
 

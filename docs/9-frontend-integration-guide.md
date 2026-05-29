@@ -2,9 +2,15 @@
 
 ---
 
-**버전**: v1.0
+**버전**: v1.1
 **작성일**: 2026-05-28
+**최종 수정일**: 2026-05-30 (v1.1)
 **참조 문서**: `docs/2-PRD.md`, `docs/4-architecture-principles.md`, `docs/5-arch-diagram.md`, `docs/6-erd.md`, `docs/7-execution-plan.md`, `docs/8-wireframes.md`, `backend/swagger.json`
+
+| 버전 | 날짜 | 변경 내용 |
+|------|------|-----------|
+| v1.0 | 2026-05-28 | 최초 작성 |
+| v1.1 | 2026-05-30 | 신규 API 타입 정의 추가: Assignee, Anniversary. 신규 API 호출 함수 추가: assigneeApi, anniversaryApi, holidayApi |
 
 ---
 
@@ -81,6 +87,53 @@ export interface Category {
 }
 
 export interface CreateCategoryRequest {
+  name: string;
+}
+```
+
+### `src/types/assignee.ts` `[신규]`
+
+```typescript
+export interface Assignee {
+  id: string;
+  userId: string;
+  name: string;
+  avatar: string | null;
+}
+
+export interface CreateAssigneeRequest {
+  name: string;
+  avatar?: string;
+}
+
+export interface UpdateAssigneeAvatarRequest {
+  avatar?: string | null;
+}
+```
+
+### `src/types/anniversary.ts` `[신규]`
+
+```typescript
+export interface Anniversary {
+  id: string;
+  userId: string;
+  name: string;
+  month: number;  // 1-12
+  day: number;    // 1-31
+}
+
+export interface CreateAnniversaryRequest {
+  name: string;
+  month: number;
+  day: number;
+}
+```
+
+### `src/types/holiday.ts` `[신규]`
+
+```typescript
+export interface Holiday {
+  date: string;     // YYYYMMDD 형식
   name: string;
 }
 ```
@@ -256,6 +309,62 @@ export const todoApi = {
 
   complete: (id: string) =>
     apiClient.patch<{ todo: Todo }>(`/api/todos/${id}/complete`),
+};
+```
+
+### `src/api/assigneeApi.ts` `[신규]`
+
+```typescript
+import { apiClient } from './client';
+import type { Assignee, CreateAssigneeRequest, UpdateAssigneeAvatarRequest } from '../types';
+
+export const assigneeApi = {
+  getAll: () =>
+    apiClient.get<{ assignees: Assignee[] }>('/api/assignees'),
+
+  create: (body: CreateAssigneeRequest) =>
+    apiClient.post<{ assignee: Assignee }>('/api/assignees', body),
+
+  updateAvatar: (id: string, body: UpdateAssigneeAvatarRequest) =>
+    apiClient.patch<{ assignee: Assignee }>(`/api/assignees/${id}/avatar`, body),
+
+  delete: (id: string) =>
+    apiClient.delete<{ message: string }>(`/api/assignees/${id}`),
+};
+```
+
+### `src/api/anniversaryApi.ts` `[신규]`
+
+```typescript
+import { apiClient } from './client';
+import type { Anniversary, CreateAnniversaryRequest } from '../types';
+
+export const anniversaryApi = {
+  getAll: () =>
+    apiClient.get<{ anniversaries: Anniversary[] }>('/api/anniversaries'),
+
+  create: (body: CreateAnniversaryRequest) =>
+    apiClient.post<{ anniversary: Anniversary }>('/api/anniversaries', body),
+
+  delete: (id: string) =>
+    apiClient.delete<{ message: string }>(`/api/anniversaries/${id}`),
+};
+```
+
+### `src/api/holidayApi.ts` `[신규]`
+
+```typescript
+import { apiClient } from './client';
+import type { Holiday } from '../types';
+
+export interface GetHolidaysParams {
+  year?: number;
+  month?: number;
+}
+
+export const holidayApi = {
+  getAll: (params?: GetHolidaysParams) =>
+    apiClient.get<{ holidays: Holiday[] }>('/api/holidays', { params }),
 };
 ```
 

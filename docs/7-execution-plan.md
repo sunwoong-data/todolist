@@ -2,9 +2,15 @@
 
 ---
 
-**버전**: v1.0
+**버전**: v1.1
 **작성일**: 2026-05-28
+**최종 수정일**: 2026-05-30 (v1.1)
 **참조 문서**: `docs/1-domain-definition.md`, `docs/2-PRD.md`, `docs/4-architecture-principles.md`, `docs/6-erd.md`
+
+| 버전 | 날짜 | 변경 내용 |
+|------|------|-----------|
+| v1.0 | 2026-05-28 | 최초 작성 |
+| v1.1 | 2026-05-30 | BE-07에 신규 API 구현 추가: assignees, anniversaries, holidays 엔드포인트 |
 
 ---
 
@@ -43,10 +49,16 @@
 
 **완료 조건**
 - [x] `users`, `categories`, `todos` 테이블이 생성되어 있다
+- [x] `assignees`, `anniversaries` 테이블이 생성되어 있다 [신규]
 - [x] `pgcrypto` 익스텐션이 활성화되어 있다
-- [x] 인덱스 3개(`idx_categories_user_id`, `idx_todos_user_id`, `idx_todos_category_id`)가 생성되어 있다
+- [x] 인덱스 4개(`idx_categories_user_id`, `idx_todos_user_id`, `idx_todos_category_id`, `idx_assignees_user_id`, `idx_anniversaries_user_id`)가 생성되어 있다 [신규]
 - [x] UNIQUE 제약조건(`users.email`, `categories.(user_id, name)`)이 적용되어 있다
-- [x] FK 제약조건(`categories.user_id → CASCADE`, `todos.category_id → RESTRICT`)이 적용되어 있다
+- [x] FK 제약조건이 적용되어 있다
+  - `categories.user_id → CASCADE`
+  - `todos.category_id → RESTRICT`
+  - `todos.assignee_id → SET NULL` [신규]
+  - `assignees.user_id → CASCADE` [신규]
+  - `anniversaries.user_id → CASCADE` [신규]
 
 ---
 
@@ -175,13 +187,14 @@
 
 ---
 
-### BE-07. 할 일 API (UC-04 ~ UC-08)
+### BE-07. 할 일 API (UC-04 ~ UC-08) 및 신규 API (담당자, 기념일, 휴일)
 
-**목적**: 할 일 CRUD 및 완료 처리 API를 구현한다. 가장 핵심적인 비즈니스 로직이 집중된 Task다.
+**목적**: 할 일 CRUD 및 완료 처리 API를 구현하고, 담당자·기념일·공휴일 관리 API를 추가한다.
 
 **의존성**
 - [x] BE-04 완료
 - [x] BE-06 완료 (기본 카테고리 조회 필요)
+- [x] DB-02 완료 (assignees, anniversaries 테이블 생성 필요)
 
 **완료 조건**
 - [x] `backend/src/repositories/todo.repository.js` 구현
@@ -189,6 +202,7 @@
   - `findByIdAndUserId(id, userId)`: 소유권 검증 포함 조회
   - `create(dto)`, `update(id, dto)`, `deleteById(id)`, `markComplete(id)` 함수
   - 모든 쿼리 파라미터화 필수
+  - `assignee_id` FK 컬럼 지원
 - [x] `backend/src/services/todo.service.js` 구현
   - `createTodo()`: BR-06 날짜 유효성, BR-03 기본 카테고리 자동 배정
   - `getTodos()`: 소유 확인 후 필터 적용 조회
@@ -203,12 +217,48 @@
   - `DELETE /api/todos/:id` → 200
   - `PATCH /api/todos/:id/complete` → 200
   - 모든 엔드포인트에 `auth.middleware` 적용
+- [x] `backend/src/repositories/assignee.repository.js` 구현 [신규]
+  - `findByUserId(userId)`: 사용자별 담당자 목록 조회
+  - `create(userId, name, avatar)`: 담당자 생성
+  - `updateAvatar(id, userId, avatar)`: 아바타 업데이트
+  - `deleteById(id, userId)`: 담당자 삭제 (FK ON DELETE SET NULL 처리)
+- [x] `backend/src/services/assignee.service.js` 구현 [신규]
+  - `getAssignees(userId)`: 담당자 목록 조회 (BR-17)
+  - `createAssignee(userId, dto)`: 담당자 생성
+  - `updateAssigneeAvatar(id, userId, avatar)`: 아바타 업데이트
+  - `deleteAssignee(id, userId)`: 담당자 삭제 (소유권 검증)
+- [x] `backend/src/routes/assignees.router.js` 구현 [신규]
+  - `GET /api/assignees` → 200 + 담당자 목록
+  - `POST /api/assignees` → 201
+  - `PATCH /api/assignees/:id/avatar` → 200
+  - `DELETE /api/assignees/:id` → 200
+  - 모든 엔드포인트에 `auth.middleware` 적용
+- [x] `backend/src/repositories/anniversary.repository.js` 구현 [신규]
+  - `findByUserId(userId)`: 사용자별 기념일 목록 조회
+  - `create(userId, name, month, day)`: 기념일 생성
+  - `deleteById(id, userId)`: 기념일 삭제
+- [x] `backend/src/services/anniversary.service.js` 구현 [신규]
+  - `getAnniversaries(userId)`: 기념일 목록 조회 (BR-19)
+  - `createAnniversary(userId, dto)`: 기념일 생성 (월/일 유효성 검증)
+  - `deleteAnniversary(id, userId)`: 기념일 삭제 (소유권 검증)
+- [x] `backend/src/routes/anniversaries.router.js` 구현 [신규]
+  - `GET /api/anniversaries` → 200 + 기념일 목록
+  - `POST /api/anniversaries` → 201
+  - `DELETE /api/anniversaries/:id` → 200
+  - 모든 엔드포인트에 `auth.middleware` 적용
+- [x] `backend/src/routes/holidays.router.js` 구현 [신규]
+  - `GET /api/holidays?year=2026&month=5` → 200 + 공휴일 목록 (BR-21)
+  - 공공 데이터 포털 API 연동
+  - `auth.middleware` 적용
 - [x] 수락 기준 충족
   - 카테고리 없이 등록 → "기본" 카테고리 자동 배정 (BR-03)
   - 종료일 < 시작일 → 400 (BR-06)
   - 타인 할 일 수정/삭제 → 403 (BR-05)
   - `?status=in_progress` 필터 → 조건에 맞는 항목만 반환 (BR-10)
   - 타인 토큰으로 조회 → 해당 사용자의 데이터만 반환 (BR-02)
+  - 담당자 생성/삭제/아바타 업데이트 동작 확인 (BR-17)
+  - 기념일 생성/삭제 동작 확인 (BR-19)
+  - 공휴일 API 응답 확인 (BR-21)
 
 ---
 

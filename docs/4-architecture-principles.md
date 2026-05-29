@@ -2,16 +2,17 @@
 
 ---
 
-**버전**: v1.1
+**버전**: v1.2
 **작성자**: sunwoong-data
 **작성일**: 2026-05-27
-**최종 수정일**: 2026-05-28
+**최종 수정일**: 2026-05-30 (v1.2)
 **참조 문서**: `docs/1-domain-definition.md`, `docs/2-PRD.md`, `docs/3-user-scenario.md`
 
 | 버전 | 날짜       | 변경 내용 |
 | ---- | ---------- | --------- |
 | v1.0 | 2026-05-27 | 최초 작성 |
 | v1.1 | 2026-05-28 | 백엔드 TypeScript → JavaScript(CommonJS) 전환 반영. 파일 확장자, 디렉토리 구조, 코드 예시 업데이트. Swagger UI 엔드포인트 추가 반영 |
+| v1.2 | 2026-05-30 | API 경로에 신규 엔드포인트 추가: /api/assignees, /api/anniversaries, /api/holidays. 백엔드 서비스/리포지토리 파일 목록 업데이트 |
 
 ---
 
@@ -168,6 +169,17 @@ PATCH  /api/todos/:id/complete     # UC-08 할 일 완료 처리
 
 GET    /api/categories             # 카테고리 목록 조회
 POST   /api/categories             # 카테고리 생성
+
+GET    /api/assignees              # 담당자 목록 조회 [신규]
+POST   /api/assignees              # 담당자 생성 [신규]
+PATCH  /api/assignees/:id/avatar   # 담당자 아바타 업데이트 [신규]
+DELETE /api/assignees/:id          # 담당자 삭제 [신규]
+
+GET    /api/anniversaries          # 기념일 목록 조회 [신규]
+POST   /api/anniversaries          # 기념일 생성 [신규]
+DELETE /api/anniversaries/:id      # 기념일 삭제 [신규]
+
+GET    /api/holidays               # 공휴일 목록 조회 (연/월별) [신규]
 
 GET    /api-docs                   # Swagger UI (개발 환경용 API 문서)
 GET    /health                     # 헬스체크
@@ -461,18 +473,25 @@ backend/
 │   │   ├── auth.router.js         # POST /api/auth/register, /api/auth/login
 │   │   ├── todos.router.js        # GET/POST /api/todos, PATCH/DELETE /api/todos/:id
 │   │   ├── categories.router.js   # GET/POST /api/categories
-│   │   └── users.router.js        # GET/PATCH /api/users/me
+│   │   ├── users.router.js        # GET/PATCH /api/users/me
+│   │   ├── assignees.router.js    # GET/POST /api/assignees, PATCH/DELETE /api/assignees/:id [신규]
+│   │   ├── anniversaries.router.js # GET/POST /api/anniversaries, DELETE /api/anniversaries/:id [신규]
+│   │   └── holidays.router.js     # GET /api/holidays [신규]
 │   │
 │   ├── services/                  # 서비스 — 비즈니스 규칙 처리
 │   │   ├── auth.service.js        # 회원가입(BR-04), 로그인(BR-01), JWT 발급
 │   │   ├── todo.service.js        # CRUD, 날짜 유효성(BR-06), 소유권(BR-05), 기본 카테고리 배정(BR-03)
 │   │   ├── category.service.js    # 카테고리 생성, 목록 조회
-│   │   └── user.service.js        # 프로필 수정, 테마(BR-13)/언어(BR-15) 유효성 검증 및 저장
+│   │   ├── user.service.js        # 프로필 수정, 테마(BR-13)/언어(BR-15) 유효성 검증 및 저장
+│   │   ├── assignee.service.js    # 담당자 CRUD [신규]
+│   │   └── anniversary.service.js # 기념일 CRUD [신규]
 │   │
 │   ├── repositories/              # 레포지토리 — SQL 쿼리 실행 (pg 직접 사용)
 │   │   ├── user.repository.js     # users 테이블 CRUD
 │   │   ├── todo.repository.js     # todos 테이블 CRUD, 필터 쿼리(BR-08~BR-12)
-│   │   └── category.repository.js # categories 테이블 CRUD
+│   │   ├── category.repository.js # categories 테이블 CRUD
+│   │   ├── assignee.repository.js # assignees 테이블 CRUD [신규]
+│   │   └── anniversary.repository.js # anniversaries 테이블 CRUD [신규]
 │   │
 │   ├── middlewares/               # Express 미들웨어
 │   │   ├── auth.middleware.js     # JWT 검증, req.userId 주입 (BR-01)
@@ -614,6 +633,7 @@ CREATE TABLE todos (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   category_id  UUID NOT NULL REFERENCES categories(id),
+  assignee_id  UUID REFERENCES assignees(id) ON DELETE SET NULL,  -- [신규] 담당자 할당
   title        VARCHAR(255) NOT NULL,
   description  TEXT,
   start_date   DATE,                                  -- 선택값 (BR-07)
@@ -623,8 +643,25 @@ CREATE TABLE todos (
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE assignees (                              -- [신규] 담당자
+  id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name    VARCHAR(100) NOT NULL,
+  avatar  TEXT
+);
+
+CREATE TABLE anniversaries (                          -- [신규] 기념일
+  id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name    VARCHAR(100) NOT NULL,
+  month   SMALLINT NOT NULL,                         -- 1-12
+  day     SMALLINT NOT NULL                          -- 1-31
+);
+
 -- migrations/002_create_indexes.sql (PRD 성능 요구사항)
-CREATE INDEX idx_todos_user_id     ON todos(user_id);
-CREATE INDEX idx_todos_category_id ON todos(category_id);
+CREATE INDEX idx_todos_user_id       ON todos(user_id);
+CREATE INDEX idx_todos_category_id   ON todos(category_id);
+CREATE INDEX idx_assignees_user_id   ON assignees(user_id);           -- [신규]
+CREATE INDEX idx_anniversaries_user_id ON anniversaries(user_id);    -- [신규]
 CREATE INDEX idx_categories_user_id ON categories(user_id);
 ```

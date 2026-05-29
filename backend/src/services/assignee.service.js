@@ -19,6 +19,15 @@ async function createAssignee(userId, dto) {
   }
 }
 
+async function updateAssigneeAvatar(id, userId, avatar) {
+  logger.info(`updateAssigneeAvatar id=${id} userId=${userId}`);
+  const updated = await assigneeRepo.updateAvatar(id, userId, avatar);
+  if (!updated) {
+    throw new AppError(404, 'ASSIGNEE_NOT_FOUND', '담당자를 찾을 수 없습니다.');
+  }
+  return updated;
+}
+
 async function deleteAssignee(id, userId) {
   logger.info(`deleteAssignee id=${id} userId=${userId}`);
   const deleted = await assigneeRepo.deleteById(id, userId);
@@ -27,4 +36,4 @@ async function deleteAssignee(id, userId) {
   }
 }
 
-module.exports = { getAssignees, createAssignee, deleteAssignee };
+module.exports = { getAssignees, createAssignee, updateAssigneeAvatar, deleteAssignee };

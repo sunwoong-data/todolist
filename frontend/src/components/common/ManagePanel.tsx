@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGetCategories, useCreateCategory } from '../../hooks/useCategories'
-import { useGetAssignees, useCreateAssignee, useDeleteAssignee } from '../../hooks/useAssignees'
+import { useGetAssignees, useCreateAssignee, useUpdateAssigneeAvatar, useDeleteAssignee } from '../../hooks/useAssignees'
 import { useGetAnniversaries, useCreateAnniversary, useDeleteAnniversary } from '../../hooks/useAnniversaries'
 
 interface ManagePanelProps {
@@ -20,6 +20,7 @@ export default function ManagePanel({ open, onClose }: ManagePanelProps) {
 
   const { data: assignees = [] } = useGetAssignees()
   const createAssignee = useCreateAssignee()
+  const updateAssigneeAvatar = useUpdateAssigneeAvatar()
   const deleteAssignee = useDeleteAssignee()
 
   const { data: anniversaries = [] } = useGetAnniversaries()
@@ -32,6 +33,9 @@ export default function ManagePanel({ open, onClose }: ManagePanelProps) {
   const [assigneeName, setAssigneeName] = useState('')
   const [assigneeError, setAssigneeError] = useState('')
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null)
+  const newAvatarInputRef = useRef<HTMLInputElement>(null)
+  const editAvatarInputRef = useRef<HTMLInputElement>(null)
+  const [editingAvatarId, setEditingAvatarId] = useState<string | null>(null)
 
   const [anniversaryName, setAnniversaryName] = useState('')
   const [anniversaryMonth, setAnniversaryMonth] = useState('')
@@ -55,6 +59,24 @@ export default function ManagePanel({ open, onClose }: ManagePanelProps) {
     const reader = new FileReader()
     reader.onload = () => setAvatarDataUrl(reader.result as string)
     reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
+  function handleEditAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !editingAvatarId) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      updateAssigneeAvatar.mutate({ id: editingAvatarId, avatar: reader.result as string })
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+    setEditingAvatarId(null)
+  }
+
+  function handleAvatarCircleClick(assigneeId: string) {
+    setEditingAvatarId(assigneeId)
+    editAvatarInputRef.current?.click()
   }
 
   function handleAddAssignee() {
@@ -279,7 +301,11 @@ export default function ManagePanel({ open, onClose }: ManagePanelProps) {
                       borderBottom: '1px solid var(--color-border-default)',
                     }}
                   >
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid var(--color-border-default)', backgroundColor: 'var(--color-bg-elevated)', flexShrink: 0 }}>
+                    <div
+                      title="클릭하여 사진 변경"
+                      onClick={(e) => { e.stopPropagation(); handleAvatarCircleClick(assignee.id); }}
+                      style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid var(--color-border-default)', backgroundColor: 'var(--color-bg-elevated)', flexShrink: 0, cursor: 'pointer', position: 'relative' }}
+                    >
                       {assignee.avatar ? (
                         <img src={assignee.avatar} alt={assignee.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
@@ -331,10 +357,14 @@ export default function ManagePanel({ open, onClose }: ManagePanelProps) {
                       <img src={avatarDataUrl} alt="미리보기" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )}
-                  <label style={{ fontSize: '0.8125rem', color: 'var(--color-accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); newAvatarInputRef.current?.click(); }}
+                    style={{ fontSize: '0.8125rem', color: 'var(--color-accent)', cursor: 'pointer', background: 'none', border: 'none', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
+                  >
                     📷 사진 선택
-                    <input type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
-                  </label>
+                  </button>
+                  <input ref={newAvatarInputRef} type="file" accept="image/*" onChange={handleAvatarChange} style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', pointerEvents: 'none' }} />
+                  <input ref={editAvatarInputRef} type="file" accept="image/*" onChange={handleEditAvatarChange} style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', pointerEvents: 'none' }} />
                   {avatarDataUrl && (
                     <button onClick={() => setAvatarDataUrl(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-disabled)', fontSize: '0.75rem' }}>
                       제거

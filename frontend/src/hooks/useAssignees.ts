@@ -23,6 +23,16 @@ export function useCreateAssignee() {
   })
 }
 
+export function useUpdateAssigneeAvatar() {
+  const queryClient = useQueryClient()
+  return useMutation<Assignee, AxiosError<ApiError>, { id: string; avatar: string | null }>({
+    mutationFn: ({ id, avatar }) => assigneeApi.updateAssigneeAvatar(id, avatar),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ASSIGNEE_QUERY_KEY })
+    },
+  })
+}
+
 export function useDeleteAssignee() {
   const queryClient = useQueryClient()
   return useMutation<{ message: string }, AxiosError<ApiError>, string>({

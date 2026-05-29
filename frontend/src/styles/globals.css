@@ -155,6 +155,26 @@ a:hover { text-decoration: underline; }
   }
 }
 
+/* ── Calendar View Layout ── */
+.calendar-view-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .calendar-view-grid {
+    grid-template-columns: 1fr;
+  }
+  .calendar-view-grid .calendar-todo-col {
+    order: 2;
+  }
+  .calendar-view-grid .calendar-cal-col {
+    order: 1;
+  }
+}
+
 /* ── Keyframes ── */
 @keyframes spin {
   to { transform: rotate(360deg); }

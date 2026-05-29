@@ -2,14 +2,16 @@
 
 ---
 
-**버전**: v1.0
+**버전**: v1.1
 **작성자**: sunwoong-data
 **작성일**: 2026-05-27
+**최종 수정일**: 2026-05-30 (v1.1)
 **참조 문서**: `docs/1-domain-definition.md`, `docs/2-PRD.md`
 
 | 버전 | 날짜       | 변경 내용 |
 | ---- | ---------- | --------- |
 | v1.0 | 2026-05-27 | 최초 작성 |
+| v1.1 | 2026-05-30 | 신규 테이블 추가: assignees, anniversaries. todos.assignee_id FK 컬럼 추가 |
 
 ---
 
@@ -43,6 +45,7 @@ erDiagram
         UUID id PK "고유 식별자"
         UUID user_id FK "소유자, NOT NULL"
         UUID category_id FK "분류 카테고리, NOT NULL"
+        UUID assignee_id FK "담당자, NULL 허용, ON DELETE SET NULL [신규]"
         VARCHAR title "할 일 제목, NOT NULL"
         TEXT description "상세 설명, NULL 허용"
         DATE start_date "시작일, NULL 허용"
@@ -52,9 +55,27 @@ erDiagram
         TIMESTAMP updated_at "수정일시, NOT NULL"
     }
 
+    assignees {
+        UUID id PK "고유 식별자 [신규]"
+        UUID user_id FK "소유자, NOT NULL [신규]"
+        VARCHAR name "담당자 이름, NOT NULL [신규]"
+        TEXT avatar "프로필 이미지 URL, NULL 허용 [신규]"
+    }
+
+    anniversaries {
+        UUID id PK "고유 식별자 [신규]"
+        UUID user_id FK "소유자, NOT NULL [신규]"
+        VARCHAR name "기념일 이름, NOT NULL [신규]"
+        SMALLINT month "월 (1-12), NOT NULL [신규]"
+        SMALLINT day "일 (1-31), NOT NULL [신규]"
+    }
+
     users ||--o{ categories : "소유"
     users ||--o{ todos : "소유"
+    users ||--o{ assignees : "소유 [신규]"
+    users ||--o{ anniversaries : "소유 [신규]"
     categories ||--o{ todos : "분류"
+    assignees ||--o{ todos : "할당 [신규]"
 ```
 
 ---
@@ -90,6 +111,7 @@ erDiagram
 | id           | UUID         | PK, NOT NULL                 | gen_random_uuid() | 고유 식별자                                                |
 | user_id      | UUID         | FK → users.id, NOT NULL      | —                 | 할 일 소유자                                               |
 | category_id  | UUID         | FK → categories.id, NOT NULL | —                 | 분류 카테고리                                              |
+| assignee_id  | UUID         | FK → assignees.id, NULL 허용 | NULL              | 담당자 (BR-17, ON DELETE SET NULL) `[신규]`               |
 | title        | VARCHAR(255) | NOT NULL                     | —                 | 할 일 제목                                                 |
 | description  | TEXT         | NULL 허용                    | NULL              | 상세 설명                                                  |
 | start_date   | DATE         | NULL 허용                    | NULL              | 시작일 (BR-07: 필수값 아님)                                |
@@ -97,6 +119,25 @@ erDiagram
 | is_completed | BOOLEAN      | NOT NULL                     | false             | 완료 여부                                                  |
 | created_at   | TIMESTAMP    | NOT NULL                     | NOW()             | 등록일시                                                   |
 | updated_at   | TIMESTAMP    | NOT NULL                     | NOW()             | 수정일시                                                   |
+
+### 2-4. assignees (담당자) `[신규]`
+
+| 컬럼명 | 타입         | 제약조건                 | 기본값            | 설명                      |
+| ------ | ------------ | ----------------------- | ----------------- | ----------------------- |
+| id     | UUID         | PK, NOT NULL            | gen_random_uuid() | 고유 식별자             |
+| user_id | UUID        | FK → users.id, NOT NULL | —                 | 담당자 소유자           |
+| name   | VARCHAR(100) | NOT NULL                | —                 | 담당자 이름             |
+| avatar | TEXT         | NULL 허용               | NULL              | 프로필 이미지 URL       |
+
+### 2-5. anniversaries (기념일) `[신규]`
+
+| 컬럼명 | 타입         | 제약조건                 | 기본값            | 설명                      |
+| ------ | ------------ | ----------------------- | ----------------- | ----------------------- |
+| id     | UUID         | PK, NOT NULL            | gen_random_uuid() | 고유 식별자             |
+| user_id | UUID        | FK → users.id, NOT NULL | —                 | 기념일 소유자           |
+| name   | VARCHAR(100) | NOT NULL                | —                 | 기념일 이름             |
+| month  | SMALLINT     | NOT NULL                | —                 | 월 (1-12)              |
+| day    | SMALLINT     | NOT NULL                | —                 | 일 (1-31)              |
 
 ---
 
@@ -106,25 +147,34 @@ erDiagram
 | ------------------ | ---------- | ------------------ | ------------- | --------- | ------------------------------------------ |
 | users → categories | 1:N        | categories.user_id | users.id      | CASCADE   | 사용자 삭제 시 소유 카테고리 전체 삭제     |
 | users → todos      | 1:N        | todos.user_id      | users.id      | CASCADE   | 사용자 삭제 시 소유 할 일 전체 삭제        |
+| users → assignees  | 1:N        | assignees.user_id  | users.id      | CASCADE   | 사용자 삭제 시 소유 담당자 전체 삭제 `[신규]` |
+| users → anniversaries | 1:N     | anniversaries.user_id | users.id   | CASCADE   | 사용자 삭제 시 소유 기념일 전체 삭제 `[신규]` |
 | categories → todos | 1:N        | todos.category_id  | categories.id | RESTRICT  | 카테고리 삭제 불가 (할 일이 존재하는 경우) |
+| assignees → todos  | 1:N        | todos.assignee_id  | assignees.id  | SET NULL  | 담당자 삭제 시 할 일의 assignee_id는 NULL로 설정 `[신규]` |
 
 > **카테고리 삭제 제약**: 카테고리 수정/삭제는 전체 버전 미포함 기능입니다 (PRD 제외 기능 참조).
 > 따라서 `todos.category_id`에 RESTRICT를 적용하여 참조 무결성을 보장합니다.
+
+> **담당자 삭제 정책**: 담당자를 삭제하면 해당 담당자가 할당된 할 일들의 `assignee_id`는 NULL로 설정되어 할 일 자체는 유지됩니다.
 
 ---
 
 ## 4. 인덱스 정의
 
-| 인덱스명                    | 테이블     | 컬럼            | 종류        | 목적                                                 |
-| --------------------------- | ---------- | --------------- | ----------- | ---------------------------------------------------- |
-| users_pkey                  | users      | id              | PRIMARY KEY | 기본키 조회                                          |
-| users_email_key             | users      | email           | UNIQUE      | 이메일 중복 방지 및 로그인 조회                      |
-| categories_pkey             | categories | id              | PRIMARY KEY | 기본키 조회                                          |
-| categories_user_id_name_key | categories | (user_id, name) | UNIQUE      | 동일 사용자 내 카테고리 이름 중복 방지               |
-| idx_categories_user_id      | categories | user_id         | INDEX       | 사용자별 카테고리 목록 조회 성능                     |
-| todos_pkey                  | todos      | id              | PRIMARY KEY | 기본키 조회                                          |
-| idx_todos_user_id           | todos      | user_id         | INDEX       | 사용자별 할 일 목록 조회 성능 (BR-02, PRD 성능 기준) |
-| idx_todos_category_id       | todos      | category_id     | INDEX       | 카테고리별 필터링 조회 성능 (BR-08, PRD 성능 기준)   |
+| 인덱스명                    | 테이블        | 컬럼            | 종류        | 목적                                                 |
+| --------------------------- | -------------- | --------------- | ----------- | ---------------------------------------------------- |
+| users_pkey                  | users          | id              | PRIMARY KEY | 기본키 조회                                          |
+| users_email_key             | users          | email           | UNIQUE      | 이메일 중복 방지 및 로그인 조회                      |
+| categories_pkey             | categories     | id              | PRIMARY KEY | 기본키 조회                                          |
+| categories_user_id_name_key | categories     | (user_id, name) | UNIQUE      | 동일 사용자 내 카테고리 이름 중복 방지               |
+| idx_categories_user_id      | categories     | user_id         | INDEX       | 사용자별 카테고리 목록 조회 성능                     |
+| todos_pkey                  | todos          | id              | PRIMARY KEY | 기본키 조회                                          |
+| idx_todos_user_id           | todos          | user_id         | INDEX       | 사용자별 할 일 목록 조회 성능 (BR-02, PRD 성능 기준) |
+| idx_todos_category_id       | todos          | category_id     | INDEX       | 카테고리별 필터링 조회 성능 (BR-08, PRD 성능 기준)   |
+| assignees_pkey              | assignees      | id              | PRIMARY KEY | 기본키 조회 `[신규]`                                |
+| idx_assignees_user_id       | assignees      | user_id         | INDEX       | 사용자별 담당자 목록 조회 성능 `[신규]`             |
+| anniversaries_pkey          | anniversaries  | id              | PRIMARY KEY | 기본키 조회 `[신규]`                                |
+| idx_anniversaries_user_id   | anniversaries  | user_id         | INDEX       | 사용자별 기념일 목록 조회 성능 `[신규]`             |
 
 ---
 
