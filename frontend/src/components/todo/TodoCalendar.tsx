@@ -8,6 +8,8 @@ import { useGetAnniversaries } from '../../hooks/useAnniversaries'
 
 interface TodoCalendarProps {
   todos: Todo[]
+  selectedDate?: string | null
+  onSelectDate?: (date: string) => void
 }
 
 interface BarInfo {
@@ -25,7 +27,7 @@ const DAY_KEYS = [
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-function TodoCalendar({ todos }: TodoCalendarProps) {
+function TodoCalendar({ todos, selectedDate, onSelectDate }: TodoCalendarProps) {
   const { t } = useTranslation()
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
@@ -175,6 +177,7 @@ function TodoCalendar({ todos }: TodoCalendarProps) {
 
           const dateStr = `${year}-${monthStr}-${pad(day)}`
           const isToday = dateStr === todayStr
+          const isSelected = dateStr === selectedDate
           const bars = barsByDate[dateStr] ?? []
           const holidayName = holidayMap[dateStr]
           const isHoliday = !!holidayName
@@ -199,11 +202,13 @@ function TodoCalendar({ todos }: TodoCalendarProps) {
             <div
               key={dateStr}
               data-testid={isToday ? 'calendar-today' : `calendar-day-${dateStr}`}
+              onClick={() => onSelectDate?.(dateStr)}
               style={{
                 padding: '3px', minHeight: 68, overflow: 'hidden',
-                backgroundColor: isToday ? '#e8f0fe' : 'var(--color-bg-surface)',
+                backgroundColor: isSelected ? '#fff3e0' : isToday ? '#e8f0fe' : 'var(--color-bg-surface)',
                 borderRight: '1px solid var(--color-border-default)',
-                borderBottom: '1px solid var(--color-border-default)',
+                borderBottom: isSelected ? '2px solid #f57c00' : '1px solid var(--color-border-default)',
+                cursor: onSelectDate ? 'pointer' : 'default',
               }}
             >
               {/* 날짜 숫자 (Google Calendar 스타일 원형) */}

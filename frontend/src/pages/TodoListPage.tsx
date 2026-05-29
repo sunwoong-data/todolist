@@ -37,6 +37,15 @@ function TodoListPage() {
   const { mutate: deleteTodo, variables: deletingId } = useDeleteTodo()
 
   const [managePanelOpen, setManagePanelOpen] = useState(false)
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null)
+
+  const calendarTodos = selectedCalendarDate
+    ? todos.filter((t) => {
+        if (!t.startDate) return false
+        const end = t.endDate ?? t.startDate
+        return t.startDate <= selectedCalendarDate && selectedCalendarDate <= end
+      })
+    : []
 
   const newItems = [...allTodos].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 
@@ -213,21 +222,37 @@ function TodoListPage() {
             /* 캘린더 뷰: 왼쪽 목록 + 오른쪽 캘린더 (각 50%) */
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-5)', alignItems: 'start' }}>
               <div style={{ minWidth: 0 }}>
-                <TodoList
-                  todos={todos}
-                  categories={categories}
-                  assignees={assignees}
-                  isLoading={isLoading}
-                  isError={isError}
-                  onComplete={(id) => completeTodo(id)}
-                  onDelete={(id) => deleteTodo(id)}
-                  completingId={completingId ?? null}
-                  deletingId={deletingId ?? null}
-                  onRetry={() => refetch()}
-                />
+                {selectedCalendarDate ? (
+                  <TodoList
+                    todos={calendarTodos}
+                    categories={categories}
+                    assignees={assignees}
+                    isLoading={isLoading}
+                    isError={isError}
+                    onComplete={(id) => completeTodo(id)}
+                    onDelete={(id) => deleteTodo(id)}
+                    completingId={completingId ?? null}
+                    deletingId={deletingId ?? null}
+                    onRetry={() => refetch()}
+                  />
+                ) : (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: 'var(--space-16) var(--space-8)',
+                    color: 'var(--color-text-disabled)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.875rem',
+                  }}>
+                    캘린더에서 날짜를 선택하면<br />해당 날짜의 할일이 표시됩니다.
+                  </div>
+                )}
               </div>
               <div style={{ minWidth: 0 }}>
-                <TodoCalendar todos={allTodos} />
+                <TodoCalendar
+                  todos={allTodos}
+                  selectedDate={selectedCalendarDate}
+                  onSelectDate={(date) => setSelectedCalendarDate(prev => prev === date ? null : date)}
+                />
               </div>
             </div>
           )}
