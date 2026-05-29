@@ -10,6 +10,10 @@ interface TodoCalendarProps {
   todos: Todo[]
   selectedDate?: string | null
   onSelectDate?: (date: string) => void
+  year?: number
+  month?: number
+  onPrevMonth?: () => void
+  onNextMonth?: () => void
 }
 
 interface BarInfo {
@@ -27,19 +31,24 @@ const DAY_KEYS = [
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-function TodoCalendar({ todos, selectedDate, onSelectDate }: TodoCalendarProps) {
+function TodoCalendar({ todos, selectedDate, onSelectDate, year: yearProp, month: monthProp, onPrevMonth, onNextMonth }: TodoCalendarProps) {
   const { t } = useTranslation()
   const today = new Date()
-  const [year, setYear] = useState(today.getFullYear())
-  const [month, setMonth] = useState(today.getMonth())
+  const [yearState, setYearState] = useState(today.getFullYear())
+  const [monthState, setMonthState] = useState(today.getMonth())
+
+  const year = yearProp ?? yearState
+  const month = monthProp ?? monthState
 
   function prevMonth() {
-    if (month === 0) { setMonth(11); setYear(y => y - 1) }
-    else setMonth(m => m - 1)
+    if (onPrevMonth) { onPrevMonth(); return }
+    if (monthState === 0) { setMonthState(11); setYearState(y => y - 1) }
+    else setMonthState(m => m - 1)
   }
   function nextMonth() {
-    if (month === 11) { setMonth(0); setYear(y => y + 1) }
-    else setMonth(m => m + 1)
+    if (onNextMonth) { onNextMonth(); return }
+    if (monthState === 11) { setMonthState(0); setYearState(y => y + 1) }
+    else setMonthState(m => m + 1)
   }
 
   const { data: holidays = [] } = useGetHolidays(year, month + 1)

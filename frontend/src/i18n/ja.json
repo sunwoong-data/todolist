@@ -16,7 +16,7 @@
     "back_to_list": "← 一覧へ"
   },
   "todo": {
-    "list_title": "TODOリスト",
+    "list_title": "Seoha",
     "new_button": "+ 新規TODO",
     "register_title": "TODO登録",
     "edit_title": "TODO編集",
@@ -47,7 +47,14 @@
     "updated_at": "更新日",
     "new_items": "新規項目",
     "list_view": "リスト",
-    "calendar_view": "カレンダー"
+    "calendar_view": "カレンダー",
+    "month_list": "今月全体",
+    "sort_by": "並替:",
+    "sort_assignee": "担当者",
+    "sort_category": "カテゴリ",
+    "sort_status": "ステータス",
+    "sort_start": "開始日",
+    "sort_due": "期限日"
   },
   "filter": {
     "status": "ステータス",

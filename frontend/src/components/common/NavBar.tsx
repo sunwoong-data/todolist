@@ -40,7 +40,7 @@ function NavBar() {
           textDecoration: 'none',
         }}
       >
-        TodoList
+        Seoha love
       </Link>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>

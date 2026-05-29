@@ -16,7 +16,7 @@
     "back_to_list": "← Back to List"
   },
   "todo": {
-    "list_title": "Todo List",
+    "list_title": "Seoha",
     "new_button": "+ New Todo",
     "register_title": "New Todo",
     "edit_title": "Edit Todo",
@@ -47,7 +47,14 @@
     "updated_at": "Updated",
     "new_items": "New Items",
     "list_view": "List",
-    "calendar_view": "Calendar"
+    "calendar_view": "Calendar",
+    "month_list": "Full Month",
+    "sort_by": "Sort:",
+    "sort_assignee": "Assignee",
+    "sort_category": "Category",
+    "sort_status": "Status",
+    "sort_start": "Start",
+    "sort_due": "Due"
   },
   "filter": {
     "status": "Status",

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useFilterStore } from '../store/filterStore'
@@ -13,6 +13,10 @@ import FilterBar from '../components/common/FilterBar'
 import ManagePanel from '../components/common/ManagePanel'
 import TodoList from '../components/todo/TodoList'
 import TodoCalendar from '../components/todo/TodoCalendar'
+
+type SortField = 'assignee' | 'category' | 'status' | 'startDate' | 'dueDate'
+
+const pad = (n: number) => String(n).padStart(2, '0')
 
 function TodoListPage() {
   const { t } = useTranslation()
@@ -39,6 +43,70 @@ function TodoListPage() {
   const [managePanelOpen, setManagePanelOpen] = useState(false)
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null)
 
+  // 캘린더 월 상태 (부모에서 관리하여 월별 목록 기능과 공유)
+  const today = new Date()
+  const [calYear, setCalYear] = useState(today.getFullYear())
+  const [calMonth, setCalMonth] = useState(today.getMonth())
+
+  // 월별 전체 목록 토글 & 정렬
+  const [showMonthList, setShowMonthList] = useState(false)
+  const [sortBy, setSortBy] = useState<SortField | null>(null)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+
+  function handlePrevMonth() {
+    if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1) }
+    else setCalMonth(m => m - 1)
+  }
+  function handleNextMonth() {
+    if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1) }
+    else setCalMonth(m => m + 1)
+  }
+
+  function handleSortBy(field: SortField) {
+    if (sortBy === field) {
+      setSortOrder(o => o === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(field)
+      setSortOrder('asc')
+    }
+  }
+
+  const calMonthStartStr = `${calYear}-${pad(calMonth + 1)}-01`
+  const daysInCalMonth = new Date(calYear, calMonth + 1, 0).getDate()
+  const calMonthEndStr = `${calYear}-${pad(calMonth + 1)}-${pad(daysInCalMonth)}`
+
+  const monthTodos = useMemo(() => {
+    const filtered = todos.filter(todo => {
+      if (!todo.startDate) return false
+      const end = todo.endDate ?? todo.startDate
+      return todo.startDate <= calMonthEndStr && end >= calMonthStartStr
+    })
+
+    if (!sortBy) return filtered
+
+    return [...filtered].sort((a, b) => {
+      let aVal = '', bVal = ''
+      if (sortBy === 'assignee') {
+        aVal = assignees.find(x => x.id === a.assigneeId)?.name ?? ''
+        bVal = assignees.find(x => x.id === b.assigneeId)?.name ?? ''
+      } else if (sortBy === 'category') {
+        aVal = categories.find(x => x.id === a.categoryId)?.name ?? ''
+        bVal = categories.find(x => x.id === b.categoryId)?.name ?? ''
+      } else if (sortBy === 'status') {
+        aVal = calcTodoStatus(a)
+        bVal = calcTodoStatus(b)
+      } else if (sortBy === 'startDate') {
+        aVal = a.startDate ?? ''
+        bVal = b.startDate ?? ''
+      } else if (sortBy === 'dueDate') {
+        aVal = a.endDate ?? ''
+        bVal = b.endDate ?? ''
+      }
+      const cmp = aVal.localeCompare(bVal)
+      return sortOrder === 'asc' ? cmp : -cmp
+    })
+  }, [todos, assignees, categories, calMonthStartStr, calMonthEndStr, sortBy, sortOrder])
+
   const calendarTodos = selectedCalendarDate
     ? todos.filter((t) => {
         if (!t.startDate) return false
@@ -48,6 +116,14 @@ function TodoListPage() {
     : []
 
   const newItems = [...allTodos].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+
+  const sortFields: [SortField, string][] = [
+    ['assignee', t('todo.sort_assignee')],
+    ['category', t('todo.sort_category')],
+    ['status', t('todo.sort_status')],
+    ['startDate', t('todo.sort_start')],
+    ['dueDate', t('todo.sort_due')],
+  ]
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg-base)' }}>
@@ -222,7 +298,72 @@ function TodoListPage() {
             /* 캘린더 뷰: 왼쪽 목록 + 오른쪽 캘린더 (모바일: 캘린더 상단, 목록 하단) */
             <div className="calendar-view-grid">
               <div className="calendar-todo-col" style={{ minWidth: 0 }}>
-                {selectedCalendarDate ? (
+                {/* 월별 전체 목록 토글 헤더 */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 'var(--space-3)',
+                }}>
+                  <span style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.8125rem',
+                    color: 'var(--color-text-secondary)',
+                  }}>
+                    {showMonthList
+                      ? `${calYear}년 ${calMonth + 1}월 · ${monthTodos.length}개`
+                      : (selectedCalendarDate ? selectedCalendarDate : '날짜를 선택하세요')}
+                  </span>
+                  <button
+                    onClick={() => setShowMonthList(v => !v)}
+                    style={monthToggleBtnStyle(showMonthList)}
+                  >
+                    {t('todo.month_list')}
+                  </button>
+                </div>
+
+                {showMonthList ? (
+                  <>
+                    {/* 정렬 컨트롤 */}
+                    <div style={{
+                      display: 'flex',
+                      gap: 'var(--space-2)',
+                      marginBottom: 'var(--space-3)',
+                      flexWrap: 'wrap',
+                      alignItems: 'center',
+                    }}>
+                      <span style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '0.75rem',
+                        color: 'var(--color-text-secondary)',
+                        flexShrink: 0,
+                      }}>
+                        {t('todo.sort_by')}
+                      </span>
+                      {sortFields.map(([field, label]) => (
+                        <button
+                          key={field}
+                          onClick={() => handleSortBy(field)}
+                          style={sortChipStyle(sortBy === field)}
+                        >
+                          {label}{sortBy === field ? (sortOrder === 'asc' ? ' ↑' : ' ↓') : ''}
+                        </button>
+                      ))}
+                    </div>
+                    <TodoList
+                      todos={monthTodos}
+                      categories={categories}
+                      assignees={assignees}
+                      isLoading={isLoading}
+                      isError={isError}
+                      onComplete={(id) => completeTodo(id)}
+                      onDelete={(id) => deleteTodo(id)}
+                      completingId={completingId ?? null}
+                      deletingId={deletingId ?? null}
+                      onRetry={() => refetch()}
+                    />
+                  </>
+                ) : selectedCalendarDate ? (
                   <TodoList
                     todos={calendarTodos}
                     categories={categories}
@@ -252,6 +393,10 @@ function TodoListPage() {
                   todos={allTodos}
                   selectedDate={selectedCalendarDate}
                   onSelectDate={(date) => setSelectedCalendarDate(prev => prev === date ? null : date)}
+                  year={calYear}
+                  month={calMonth}
+                  onPrevMonth={handlePrevMonth}
+                  onNextMonth={handleNextMonth}
                 />
               </div>
             </div>
@@ -288,6 +433,38 @@ function segmentBtnStyle(isActive: boolean): React.CSSProperties {
     cursor: 'pointer',
     transition: 'background-color var(--transition-fast), color var(--transition-fast)',
     minHeight: '32px',
+  }
+}
+
+function monthToggleBtnStyle(isActive: boolean): React.CSSProperties {
+  return {
+    fontFamily: 'var(--font-body)',
+    fontSize: '0.75rem',
+    fontWeight: isActive ? 600 : 400,
+    padding: '4px 12px',
+    borderRadius: 'var(--radius-pill)',
+    border: '1px solid',
+    borderColor: isActive ? 'var(--color-accent)' : 'var(--color-border-default)',
+    backgroundColor: isActive ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)' : 'transparent',
+    color: isActive ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+    cursor: 'pointer',
+    transition: 'all var(--transition-fast)',
+  }
+}
+
+function sortChipStyle(isActive: boolean): React.CSSProperties {
+  return {
+    fontFamily: 'var(--font-body)',
+    fontSize: '0.75rem',
+    fontWeight: isActive ? 600 : 400,
+    padding: '3px 10px',
+    borderRadius: 'var(--radius-pill)',
+    border: '1px solid',
+    borderColor: isActive ? 'var(--color-accent)' : 'var(--color-border-default)',
+    backgroundColor: isActive ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)' : 'transparent',
+    color: isActive ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+    cursor: 'pointer',
+    transition: 'all var(--transition-fast)',
   }
 }
 
