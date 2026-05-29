@@ -23,17 +23,13 @@ function LoginPage() {
   return (
     <div className="auth-layout">
       <div className="auth-card">
-        <h1
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: 'var(--color-text-primary)',
-            marginBottom: 'var(--space-8)',
-          }}
-        >
-          {t('auth.login')}
-        </h1>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-6)' }}>
+          <img
+            src="/seoha.png"
+            alt="Seoha"
+            style={{ width: 160, height: 'auto', objectFit: 'contain' }}
+          />
+        </div>
 
         <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
           <Input
