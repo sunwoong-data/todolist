@@ -4,8 +4,8 @@ const todoRepo = require('../repositories/todo.repository');
 const categoryRepo = require('../repositories/category.repository');
 
 async function getTodos(userId, filter) {
-  logger.info(`getTodos userId=${userId} status=${filter.status ?? ''} categoryId=${filter.categoryId ?? ''}`);
-  return todoRepo.findByUserId(userId, { status: filter.status, categoryId: filter.categoryId });
+  logger.info(`getTodos userId=${userId} status=${filter.status ?? ''} categoryId=${filter.categoryId ?? ''} assigneeId=${filter.assigneeId ?? ''}`);
+  return todoRepo.findByUserId(userId, { status: filter.status, categoryId: filter.categoryId, assigneeId: filter.assigneeId });
 }
 
 async function getTodoById(id, userId) {
@@ -33,6 +33,7 @@ async function createTodo(userId, dto) {
   return todoRepo.create({
     userId,
     categoryId,
+    assigneeId: dto.assigneeId,
     title: dto.title,
     description: dto.description,
     startDate: dto.startDate,
@@ -59,6 +60,7 @@ async function updateTodo(id, userId, dto) {
     title: dto.title,
     description: dto.description,
     categoryId: dto.categoryId,
+    assigneeId: dto.assigneeId,
     startDate: dto.startDate,
     endDate: dto.endDate,
   });

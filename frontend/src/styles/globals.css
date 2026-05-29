@@ -1,0 +1,171 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── Background ── */
+  --color-bg-base:           #f8f9fa;
+  --color-bg-surface:        #ffffff;
+  --color-bg-elevated:       #f1f3f4;
+  --color-bg-overlay:        #ffffff;
+
+  /* ── Sidebar (Google 라이트 사이드바) ── */
+  --color-bg-sidebar:        #ffffff;
+  --color-bg-sidebar-hover:  #f1f3f4;
+  --color-bg-sidebar-active: #e8f0fe;
+
+  /* ── Text ── */
+  --color-text-primary:   #202124;
+  --color-text-secondary: #5f6368;
+  --color-text-disabled:  #9aa0a6;
+  --color-text-inverse:   #ffffff;
+  --color-text-sidebar:   #444746;
+
+  /* ── Border ── */
+  --color-border-default: #dadce0;
+  --color-border-strong:  #bdc1c6;
+  --color-border-focus:   #1a73e8;
+
+  /* ── Accent (Google Blue) ── */
+  --color-accent:          #1a73e8;
+  --color-accent-hover:    #1557b0;
+  --color-accent-pressed:  #174ea6;
+  --color-accent-active:   #1967d2;
+
+  /* ── Semantic ── */
+  --color-success: #188038;
+  --color-warning: #e37400;
+  --color-error:   #d93025;
+  --color-info:    #1a73e8;
+
+  /* ── Status Badge ── */
+  --color-status-pending:     #9aa0a6;
+  --color-status-in-progress: #1a73e8;
+  --color-status-overdue:     #d93025;
+  --color-status-completed:   #188038;
+
+  /* ── Font ── */
+  --font-display: 'Roboto', 'Noto Sans KR', sans-serif;
+  --font-mono:    'Roboto Mono', monospace;
+  --font-body:    'Roboto', 'Noto Sans KR', system-ui, sans-serif;
+
+  /* ── Spacing ── */
+  --space-1:  4px;   --space-2:  8px;   --space-3:  12px;
+  --space-4:  16px;  --space-5:  20px;  --space-6:  24px;
+  --space-8:  32px;  --space-10: 40px;  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Transition ── */
+  --transition-fast:   0.1s ease;
+  --transition-normal: 0.15s ease;
+  --transition-slow:   0.25s ease;
+
+  /* ── Border Radius ── */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-pill: 100px;
+
+  /* ── Shadow (Google Material 스타일) ── */
+  --shadow-sm:     0 1px 2px rgba(60,64,67,0.12), 0 1px 3px rgba(60,64,67,0.08);
+  --shadow-md:     0 1px 3px rgba(60,64,67,0.16), 0 4px 8px rgba(60,64,67,0.1);
+  --shadow-lg:     0 4px 8px rgba(60,64,67,0.18), 0 8px 24px rgba(60,64,67,0.12);
+  --shadow-inset:  inset 0 1px 0 rgba(0,0,0,0.04);
+}
+
+html, body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 스크롤바 ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-elevated); }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 3px; }
+
+/* ── 선택 영역 ── */
+::selection {
+  background-color: #c2d7f5;
+  color: var(--color-text-primary);
+}
+
+/* ── 링크 ── */
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* ── Container ── */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .container { padding: 0 var(--space-4); }
+}
+
+@media (max-width: 375px) {
+  .container { padding: 0 var(--space-3); }
+}
+
+/* ── Todo Page Layout ── */
+.todo-page-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0;
+  min-height: calc(100vh - 56px);
+}
+
+@media (max-width: 768px) {
+  .todo-page-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Auth Layout ── */
+.auth-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  padding: var(--space-10) var(--space-8);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 375px) {
+  .auth-card {
+    padding: var(--space-8) var(--space-5);
+  }
+}
+
+/* ── Keyframes ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}

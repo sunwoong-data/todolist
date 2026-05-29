@@ -5,13 +5,14 @@ function mapRow(row) {
     id: row.id,
     userId: row.user_id,
     categoryId: row.category_id,
+    assigneeId: row.assignee_id ?? null,
     title: row.title,
     description: row.description,
     startDate: row.start_date ? String(row.start_date).substring(0, 10) : null,
     endDate: row.end_date ? String(row.end_date).substring(0, 10) : null,
     isCompleted: row.is_completed,
-    createdAt: String(row.created_at),
-    updatedAt: String(row.updated_at),
+    createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
+    updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at),
   };
 }
 
@@ -36,6 +37,12 @@ async function findByUserId(userId, filter = {}) {
     idx++;
   }
 
+  if (filter.assigneeId) {
+    conditions.push(`assignee_id = $${idx}`);
+    params.push(filter.assigneeId);
+    idx++;
+  }
+
   const sql = `SELECT * FROM todos WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC`;
   const result = await pool.query(sql, params);
   return result.rows.map(mapRow);
@@ -56,10 +63,10 @@ async function findById(id) {
 
 async function create(dto) {
   const result = await pool.query(
-    `INSERT INTO todos (user_id, category_id, title, description, start_date, end_date)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO todos (user_id, category_id, assignee_id, title, description, start_date, end_date)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING *`,
-    [dto.userId, dto.categoryId, dto.title, dto.description ?? null, dto.startDate ?? null, dto.endDate ?? null],
+    [dto.userId, dto.categoryId, dto.assigneeId ?? null, dto.title, dto.description ?? null, dto.startDate ?? null, dto.endDate ?? null],
   );
   return mapRow(result.rows[0]);
 }
@@ -72,6 +79,7 @@ async function update(id, dto) {
   if (dto.title !== undefined) { fields.push(`title = $${idx++}`); values.push(dto.title); }
   if (dto.description !== undefined) { fields.push(`description = $${idx++}`); values.push(dto.description); }
   if (dto.categoryId !== undefined) { fields.push(`category_id = $${idx++}`); values.push(dto.categoryId); }
+  if (dto.assigneeId !== undefined) { fields.push(`assignee_id = $${idx++}`); values.push(dto.assigneeId); }
   if (dto.startDate !== undefined) { fields.push(`start_date = $${idx++}`); values.push(dto.startDate); }
   if (dto.endDate !== undefined) { fields.push(`end_date = $${idx++}`); values.push(dto.endDate); }
 

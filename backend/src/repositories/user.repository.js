@@ -7,8 +7,8 @@ function mapRow(row) {
     name: row.name,
     themePreference: row.theme_preference,
     languagePreference: row.language_preference,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
+    updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at),
   };
 }
 

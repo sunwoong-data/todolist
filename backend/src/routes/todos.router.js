@@ -7,8 +7,8 @@ const router = Router();
 
 router.get('/', authMiddleware, async (req, res, next) => {
   try {
-    const { status, category_id } = req.query;
-    const todos = await todoService.getTodos(req.userId, { status, categoryId: category_id });
+    const { status, category_id, assignee_id } = req.query;
+    const todos = await todoService.getTodos(req.userId, { status, categoryId: category_id, assigneeId: assignee_id });
     res.status(200).json({ todos });
   } catch (err) {
     logger.error('GET /api/todos 오류', err);

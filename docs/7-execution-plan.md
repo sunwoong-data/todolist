@@ -240,14 +240,14 @@
 - 없음 (백엔드와 병렬 착수 가능)
 
 **완료 조건**
-- [ ] `frontend/package.json`이 생성되고 의존성이 설치되어 있다
+- [x] `frontend/package.json`이 생성되고 의존성이 설치되어 있다
   - dependencies: `react@19`, `react-dom@19`, `react-router-dom`, `zustand`, `@tanstack/react-query`, `axios`
   - devDependencies: `vite`, `typescript`, `@vitejs/plugin-react`, `eslint`, `prettier`
-- [ ] `frontend/tsconfig.json`에 `"strict": true`가 설정되어 있다
-- [ ] `frontend/.env.example`에 `VITE_API_BASE_URL=http://localhost:3000`이 작성되어 있다
-- [ ] `frontend/.env`가 로컬 환경값으로 채워져 있다 (gitignore 확인)
-- [ ] `npm run dev` 실행 시 `localhost:5173`에서 앱이 시작된다
-- [ ] `frontend/vite.config.ts`에 개발 서버 프록시 또는 CORS 설정이 적용되어 있다
+- [x] `frontend/tsconfig.json`에 `"strict": true`가 설정되어 있다
+- [x] `frontend/.env.example`에 `VITE_API_BASE_URL=http://localhost:3000`이 작성되어 있다
+- [x] `frontend/.env`가 로컬 환경값으로 채워져 있다 (gitignore 확인)
+- [x] `npm run dev` 실행 시 `localhost:5173`에서 앱이 시작된다
+- [x] `frontend/vite.config.ts`에 개발 서버 프록시 또는 CORS 설정이 적용되어 있다
 
 ---
 
@@ -259,13 +259,13 @@
 - [ ] FE-01 완료
 
 **완료 조건**
-- [ ] `frontend/src/types/todo.ts`: `Todo`, `TodoStatus`, `CreateTodoRequest`, `UpdateTodoRequest` 타입이 `docs/4-architecture-principles.md` 섹션 6 예시 기준으로 작성되어 있다
-- [ ] `frontend/src/types/user.ts`: `User`, `Theme`, `Language`, `UpdateProfileRequest` 타입이 작성되어 있다
-- [ ] `frontend/src/types/category.ts`: `Category`, `CreateCategoryRequest` 타입이 작성되어 있다
-- [ ] `frontend/src/api/` 아래 `authApi.ts`, `todoApi.ts`, `categoryApi.ts`, `userApi.ts`가 구현되어 있다
-- [ ] API 클라이언트는 `VITE_API_BASE_URL` 환경변수를 baseURL로 사용한다
-- [ ] 인증 필요 요청에 `Authorization: Bearer <token>` 헤더가 자동으로 추가된다 (axios 인터셉터)
-- [ ] 401 응답 시 로그인 페이지로 자동 리다이렉트 처리가 있다
+- [x] `frontend/src/types/todo.ts`: `Todo`, `TodoStatus`, `CreateTodoRequest`, `UpdateTodoRequest` 타입이 `docs/4-architecture-principles.md` 섹션 6 예시 기준으로 작성되어 있다
+- [x] `frontend/src/types/user.ts`: `User`, `Theme`, `Language`, `UpdateProfileRequest` 타입이 작성되어 있다
+- [x] `frontend/src/types/category.ts`: `Category`, `CreateCategoryRequest` 타입이 작성되어 있다
+- [x] `frontend/src/api/` 아래 `authApi.ts`, `todoApi.ts`, `categoryApi.ts`, `userApi.ts`가 구현되어 있다
+- [x] API 클라이언트는 `VITE_API_BASE_URL` 환경변수를 baseURL로 사용한다
+- [x] 인증 필요 요청에 `Authorization: Bearer <token>` 헤더가 자동으로 추가된다 (axios 인터셉터)
+- [x] 401 응답 시 로그인 페이지로 자동 리다이렉트 처리가 있다
 
 ---
 
@@ -277,14 +277,14 @@
 - [ ] FE-02 완료
 
 **완료 조건**
-- [ ] `frontend/src/store/authStore.ts` 구현
+- [x] `frontend/src/store/authStore.ts` 구현
   - 저장 항목: `userId`, `token`, `name`, `themePreference`, `languagePreference`
   - `login()`, `logout()` 액션
   - `localStorage` 또는 `sessionStorage` 연동으로 새로고침 후에도 유지
-- [ ] `frontend/src/store/filterStore.ts` 구현
+- [x] `frontend/src/store/filterStore.ts` 구현
   - 저장 항목: 선택된 `status` 필터, 선택된 `categoryId` 필터
   - `setStatus()`, `setCategoryId()`, `reset()` 액션
-- [ ] 서버 데이터(Todo 목록, Category 목록)는 Zustand에 저장되지 않는다
+- [x] 서버 데이터(Todo 목록, Category 목록)는 Zustand에 저장되지 않는다
 
 ---
 
@@ -296,15 +296,15 @@
 - [ ] FE-03 완료
 
 **완료 조건**
-- [ ] `frontend/src/App.tsx`에 React Router 라우팅이 설정되어 있다
+- [x] `frontend/src/App.tsx`에 React Router 라우팅이 설정되어 있다
   - `GET /login` → `LoginPage` (인증 불필요)
   - `GET /register` → `RegisterPage` (인증 불필요)
   - `GET /` → `TodoListPage` (인증 필요)
   - `GET /todos/new` → `TodoNewPage` (인증 필요)
   - `GET /todos/:id/edit` → `TodoEditPage` (인증 필요)
   - `GET /profile` → `ProfilePage` (인증 필요)
-- [ ] 인증 필요 경로에 비인증 접근 시 `/login`으로 리다이렉트된다
-- [ ] 로그인 상태에서 `/login`, `/register` 접근 시 `/`로 리다이렉트된다
+- [x] 인증 필요 경로에 비인증 접근 시 `/login`으로 리다이렉트된다
+- [x] 로그인 상태에서 `/login`, `/register` 접근 시 `/`로 리다이렉트된다
 
 ---
 
@@ -316,10 +316,10 @@
 - [ ] FE-01 완료
 
 **완료 조건**
-- [ ] `frontend/src/components/common/Button.tsx`: 로딩 상태, disabled 지원
-- [ ] `frontend/src/components/common/Input.tsx`: label, 에러 메시지 표시 지원
-- [ ] `frontend/src/components/common/Modal.tsx`: 확인/취소 버튼, 외부 클릭 닫기
-- [ ] 반응형 기준 breakpoint가 CSS에 정의되어 있다 (768px 태블릿, 375px 모바일)
+- [x] `frontend/src/components/common/Button.tsx`: 로딩 상태, disabled 지원
+- [x] `frontend/src/components/common/Input.tsx`: label, 에러 메시지 표시 지원
+- [x] `frontend/src/components/common/Modal.tsx`: 확인/취소 버튼, 외부 클릭 닫기
+- [x] 반응형 기준 breakpoint가 CSS에 정의되어 있다 (768px 태블릿, 375px 모바일)
 
 ---
 
@@ -333,16 +333,16 @@
 - [ ] BE-04 완료 (API 연동)
 
 **완료 조건**
-- [ ] `frontend/src/pages/LoginPage.tsx` 구현 (S-01, UC-02)
+- [x] `frontend/src/pages/LoginPage.tsx` 구현 (S-01, UC-02)
   - 이메일/비밀번호 입력 폼
   - 로그인 성공 시 JWT 저장 + `/`로 이동
   - 로그인 실패 시 에러 메시지 표시
-- [ ] `frontend/src/pages/RegisterPage.tsx` 구현 (S-02, UC-01)
+- [x] `frontend/src/pages/RegisterPage.tsx` 구현 (S-02, UC-01)
   - 이메일/비밀번호/이름 입력 폼
   - 회원가입 성공 시 `/login`으로 이동
   - 중복 이메일 시 에러 메시지 표시
-- [ ] `frontend/src/hooks/useAuth.ts` 구현 (TanStack Query mutation 사용)
-- [ ] 로그인/회원가입 중 버튼 로딩 상태 표시
+- [x] `frontend/src/hooks/useAuth.ts` 구현 (TanStack Query mutation 사용)
+- [x] 로그인/회원가입 중 버튼 로딩 상태 표시
 
 ---
 
@@ -355,16 +355,16 @@
 - [ ] BE-07 완료 (API 연동)
 
 **완료 조건**
-- [ ] `frontend/src/hooks/useTodos.ts` 구현
+- [x] `frontend/src/hooks/useTodos.ts` 구현
   - `useGetTodos(filters)`: Todo 목록 조회 (status, categoryId 필터 파라미터 전달)
   - `useCreateTodo()`: 생성 mutation + 성공 시 목록 캐시 무효화
   - `useUpdateTodo()`: 수정 mutation + 성공 시 캐시 무효화
   - `useDeleteTodo()`: 삭제 mutation + 성공 시 캐시 무효화
   - `useCompleteTodo()`: 완료 처리 mutation + 성공 시 캐시 무효화
-- [ ] `frontend/src/hooks/useCategories.ts` 구현
+- [x] `frontend/src/hooks/useCategories.ts` 구현
   - `useGetCategories()`: 카테고리 목록 조회
   - `useCreateCategory()`: 생성 mutation
-- [ ] `QueryClient`가 `main.tsx`에서 `QueryClientProvider`로 제공된다
+- [x] `QueryClient`가 `main.tsx`에서 `QueryClientProvider`로 제공된다
 
 ---
 
@@ -377,7 +377,7 @@
 - [ ] FE-03 완료 (filterStore 필요)
 
 **완료 조건**
-- [ ] `frontend/src/components/category/CategoryFilter.tsx` 구현
+- [x] `frontend/src/components/category/CategoryFilter.tsx` 구현
   - 상태 필터: 전체 / 시작 전 / 진행 중 / 완료 / 기한 초과 (BR-09~BR-12)
   - 카테고리 필터: useGetCategories()로 목록 조회 후 렌더링 (BR-08)
   - 선택된 필터 값을 `filterStore`에 저장
@@ -394,15 +394,15 @@
 - [ ] FE-05 완료
 
 **완료 조건**
-- [ ] `frontend/src/components/todo/TodoItem.tsx` 구현 (UC-05 목록 항목)
+- [x] `frontend/src/components/todo/TodoItem.tsx` 구현 (UC-05 목록 항목)
   - 제목, 상태, 카테고리, 시작일/종료일 표시
   - 완료 처리 버튼 인라인 (UC-08)
   - 삭제 버튼 인라인 + Modal 확인 (UC-07)
   - 수정 페이지 링크 (UC-06)
-- [ ] `frontend/src/components/todo/TodoList.tsx` 구현
+- [x] `frontend/src/components/todo/TodoList.tsx` 구현
   - TodoItem 목록 렌더링
   - 로딩/에러/빈 목록 상태 처리
-- [ ] `frontend/src/components/todo/TodoForm.tsx` 구현 (UC-04, UC-06 공용)
+- [x] `frontend/src/components/todo/TodoForm.tsx` 구현 (UC-04, UC-06 공용)
   - 제목(필수), 설명(선택), 카테고리 선택, 시작일/종료일(선택) 입력
   - 종료일 < 시작일 입력 시 클라이언트 측 에러 표시 (BR-06)
   - 카테고리 미선택 시 서버에서 기본 카테고리 배정 (BR-03, 클라이언트 처리 불필요)
@@ -418,14 +418,14 @@
 - [ ] FE-09 완료
 
 **완료 조건**
-- [ ] `frontend/src/pages/TodoListPage.tsx` 구현 (S-03, UC-05)
+- [x] `frontend/src/pages/TodoListPage.tsx` 구현 (S-03, UC-05)
   - `CategoryFilter` + `TodoList` 조합
   - 필터 변경 시 목록 자동 갱신
   - 할 일 등록 페이지(`/todos/new`) 이동 버튼
-- [ ] `frontend/src/pages/TodoNewPage.tsx` 구현 (S-04, UC-04)
+- [x] `frontend/src/pages/TodoNewPage.tsx` 구현 (S-04, UC-04)
   - `TodoForm` 사용 (등록 모드)
   - 등록 성공 시 `/`로 이동
-- [ ] `frontend/src/pages/TodoEditPage.tsx` 구현 (S-05, UC-06)
+- [x] `frontend/src/pages/TodoEditPage.tsx` 구현 (S-05, UC-06)
   - URL 파라미터 `:id`로 기존 할 일 조회 후 `TodoForm`에 초기값 설정
   - 수정 성공 시 `/`로 이동
   - 존재하지 않는 ID 접근 시 404 처리
@@ -441,7 +441,7 @@
 - [ ] BE-05 완료 (API 연동)
 
 **완료 조건**
-- [ ] `frontend/src/pages/ProfilePage.tsx` 구현 (S-06, UC-03)
+- [x] `frontend/src/pages/ProfilePage.tsx` 구현 (S-06, UC-03)
   - 현재 이름 표시 및 수정 폼
   - 비밀번호 변경 폼 (현재/신규 비밀번호)
   - 수정 성공 시 성공 메시지 표시
@@ -458,13 +458,13 @@
 - [ ] BE-08 완료
 
 **완료 조건**
-- [ ] UC-01~UC-08 전체 유스케이스 브라우저 동작 확인
-- [ ] BR-01~BR-12 전체 비즈니스 규칙 UI 동작 확인
-- [ ] 타인 데이터 접근 차단 (BR-02): 다른 계정으로 로그인해도 내 데이터만 표시됨
-- [ ] 모바일(375px) 레이아웃 시각적 확인
-- [ ] 태블릿(768px) 레이아웃 시각적 확인
-- [ ] TypeScript 빌드 에러 없음 (`tsc --noEmit`)
-- [ ] Vite 프로덕션 빌드 성공 (`npm run build`)
+- [x] UC-01~UC-08 전체 유스케이스 브라우저 동작 확인
+- [x] BR-01~BR-12 전체 비즈니스 규칙 UI 동작 확인
+- [x] 타인 데이터 접근 차단 (BR-02): 다른 계정으로 로그인해도 내 데이터만 표시됨
+- [x] 모바일(375px) 레이아웃 시각적 확인
+- [x] 태블릿(768px) 레이아웃 시각적 확인
+- [x] TypeScript 빌드 에러 없음 (`tsc --noEmit`)
+- [x] Vite 프로덕션 빌드 성공 (`npm run build`)
 
 ---
 

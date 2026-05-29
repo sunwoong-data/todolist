@@ -2,9 +2,9 @@
 
 ---
 
-**버전**: v1.0
-**작성일**: 2026-05-28
-**참조 이미지**: Shopify Supply 에디토리얼 디자인 레퍼런스
+**버전**: v2.0
+**작성일**: 2026-05-29
+**참조 이미지**: Slack 다크 UI — 딥 오버진 퍼플 사이드바 + 에디토리얼 옐로우 액센트
 **적용 범위**: `frontend/src/` 전체 UI
 
 ---
@@ -13,16 +13,16 @@
 
 ### 컨셉
 
-**"다크 에디토리얼 프로덕티비티"**
+**"다크 오버진 에디토리얼"**
 
-딥 차콜 배경 위에 크림 화이트 텍스트와 브라이트 옐로우 액센트를 배치하는 고대비 에디토리얼 스타일. 모노스페이스 라벨과 볼드 타이포그래피가 기능적인 생산성 앱에 강한 아이덴티티를 부여한다.
+Slack의 딥 오버진(짙은 보라-자주) 사이드바에서 영감을 받은 어두운 퍼플 배경 시스템. 크림이 아닌 보라 틴트 화이트 텍스트를 사용하며, 브라이트 옐로우 액센트가 퍼플 배경 위에서 강한 에디토리얼 대비를 만든다. 사이드바는 Slack의 시그니처 오버진 계열로 차별화된 레이어를 형성한다.
 
 ### 핵심 원칙
 
-1. **다크 모드 퍼스트** — 기본 테마는 다크. 라이트 모드는 v2에서 대응
-2. **고대비** — WCAG AA 기준 이상의 텍스트-배경 대비
-3. **타이포 중심** — 아이콘보다 명확한 텍스트 레이블 우선
-4. **미니멀 레이아웃** — 불필요한 장식 배제, 콘텐츠에 집중
+1. **퍼플 레이어 시스템** — 배경·표면·사이드바가 각각 다른 보라 농도를 가진다
+2. **옐로우-온-퍼플 대비** — 노란 액센트가 퍼플 배경 위에서 최대 가시성 확보
+3. **오버진 사이드바** — 네비게이션·필터 패널은 Slack 스타일 딥 퍼플로 구분
+4. **타이포 중심** — 모노스페이스 라벨 + 볼드 헤딩으로 에디토리얼 아이덴티티 유지
 
 ---
 
@@ -32,39 +32,45 @@
 
 ```css
 :root {
-  /* ── Background ── */
-  --color-bg-base:      #0f0f0f;  /* 최하단 배경 */
-  --color-bg-surface:   #1a1a1a;  /* 카드, 패널 */
-  --color-bg-elevated:  #242424;  /* 호버, 포커스된 표면 */
-  --color-bg-overlay:   #2e2e2e;  /* 모달, 드롭다운 */
+  /* ── Background (퍼플 레이어) ── */
+  --color-bg-base:           #0C0810;  /* 최하단 배경 — 블랙에 보라 undertone */
+  --color-bg-surface:        #17112A;  /* 카드, 패널 */
+  --color-bg-elevated:       #1F1836;  /* 호버, 포커스된 표면 */
+  --color-bg-overlay:        #2A2245;  /* 모달, 드롭다운 */
+
+  /* ── Sidebar (Slack 오버진 계열) ── */
+  --color-bg-sidebar:        #3D1150;  /* 사이드바 / NavBar — Slack 오버진 */
+  --color-bg-sidebar-hover:  #4D1A64;  /* 사이드바 항목 호버 */
+  --color-bg-sidebar-active: rgba(255, 255, 255, 0.12);  /* 사이드바 활성 항목 */
 
   /* ── Text ── */
-  --color-text-primary:   #f0ebe3;  /* 주요 텍스트 (크림 화이트) */
-  --color-text-secondary: #8a8580;  /* 보조 텍스트 */
-  --color-text-disabled:  #4a4a4a;  /* 비활성 */
-  --color-text-inverse:   #0f0f0f;  /* 옐로우 배경 위 텍스트 */
+  --color-text-primary:   #EDE8F5;  /* 주요 텍스트 — 보라 틴트 화이트 */
+  --color-text-secondary: #9882B0;  /* 보조 텍스트 */
+  --color-text-disabled:  #4C3A5E;  /* 비활성 */
+  --color-text-inverse:   #0C0810;  /* 옐로우 배경 위 텍스트 */
+  --color-text-sidebar:   #C8B8DC;  /* 사이드바 텍스트 */
 
   /* ── Border ── */
-  --color-border-default: #2a2a2a;
-  --color-border-strong:  #3d3d3d;
-  --color-border-focus:   #f0ebe3;  /* 포커스 링 */
+  --color-border-default: #25163A;
+  --color-border-strong:  #362150;
+  --color-border-focus:   #F5D61A;  /* 포커스 링 — 옐로우로 퍼플 배경 위 강조 */
 
-  /* ── Accent (브라이트 옐로우) ── */
-  --color-accent:          #f5d61a;  /* Primary CTA, 강조 액션 */
-  --color-accent-hover:    #f0ca00;
-  --color-accent-pressed:  #d4b000;
+  /* ── Accent (브라이트 옐로우 — 퍼플 위 최대 대비) ── */
+  --color-accent:          #F5D61A;
+  --color-accent-hover:    #F0CA00;
+  --color-accent-pressed:  #D4B000;
 
   /* ── Semantic ── */
-  --color-success:  #2fd87a;  /* 완료 상태 */
-  --color-warning:  #f5a623;  /* 기한 임박 */
-  --color-error:    #ff4d4d;  /* 에러, 기한 초과 */
-  --color-info:     #4da6ff;  /* 진행 중 상태 */
+  --color-success:  #2FD87A;
+  --color-warning:  #F5A623;
+  --color-error:    #FF4D4D;
+  --color-info:     #818CF8;  /* 인디고 계열 — 퍼플 테마와 조화 */
 
   /* ── Status Badge ── */
-  --color-status-pending:     #6b6b6b;  /* 시작 전 */
-  --color-status-in-progress: #4da6ff;  /* 진행 중 */
-  --color-status-overdue:     #ff4d4d;  /* 기한 초과 */
-  --color-status-completed:   #2fd87a;  /* 완료 */
+  --color-status-pending:     #6B5E7E;  /* 시작 전 — 퍼플 그레이 */
+  --color-status-in-progress: #818CF8;  /* 진행 중 — 인디고 */
+  --color-status-overdue:     #FF4D4D;  /* 기한 초과 */
+  --color-status-completed:   #2FD87A;  /* 완료 */
 }
 ```
 
@@ -75,12 +81,35 @@
 | 페이지 배경 | `--color-bg-base` |
 | 카드 / 입력 필드 배경 | `--color-bg-surface` |
 | 호버된 카드 | `--color-bg-elevated` |
-| 모달 오버레이 | `rgba(0, 0, 0, 0.7)` |
+| 모달 배경 | `--color-bg-overlay` |
+| NavBar 배경 | `--color-bg-sidebar` (오버진) |
+| 사이드바 필터 패널 | `--color-bg-sidebar` (오버진) |
+| 사이드바 텍스트 | `--color-text-sidebar` |
+| 사이드바 활성 항목 | `--color-bg-sidebar-active` |
 | 주요 텍스트 | `--color-text-primary` |
 | 날짜, 카테고리 등 메타 | `--color-text-secondary` |
 | Primary 버튼 | `--color-accent` 배경 + `--color-text-inverse` 텍스트 |
-| Secondary 버튼 | 투명 배경 + `--color-text-primary` 텍스트 + `--color-border-strong` 테두리 |
+| Secondary 버튼 | 투명 배경 + `--color-text-primary` + `--color-border-strong` 테두리 |
 | 위험 버튼 (삭제) | `--color-error` 텍스트 또는 배경 |
+
+### 라이트 모드 오버라이드
+
+```css
+[data-theme="light"] {
+  --color-bg-base:           #F5F3F8;
+  --color-bg-surface:        #FFFFFF;
+  --color-bg-elevated:       #EDE8F5;
+  --color-bg-overlay:        #FFFFFF;
+  --color-bg-sidebar:        #3D1150;  /* 사이드바는 라이트/다크 공통 오버진 유지 */
+  --color-bg-sidebar-hover:  #4D1A64;
+  --color-bg-sidebar-active: rgba(255, 255, 255, 0.15);
+  --color-text-primary:      #1A0F2E;
+  --color-text-secondary:    #5A4875;
+  --color-text-disabled:     #B8A8CC;
+  --color-border-default:    #D8CCE8;
+  --color-border-strong:     #B89CCC;
+}
+```
 
 ---
 
@@ -89,12 +118,10 @@
 ### 폰트 패밀리
 
 ```css
-/* Google Fonts 또는 로컬 폰트 */
-
 /* 디스플레이 — 대형 섹션 타이틀, 빈 화면 메시지 */
 --font-display: 'Barlow Condensed', 'Anton', sans-serif;
 
-/* UI 라벨 — 상태 뱃지, 카테고리, 메타 정보 (모노스페이스 대문자 느낌) */
+/* UI 라벨 — 상태 뱃지, 카테고리, 메타 정보 */
 --font-mono:    'JetBrains Mono', 'Space Mono', 'Courier New', monospace;
 
 /* 본문 — 일반 텍스트, 폼, 버튼 */
@@ -205,28 +232,25 @@
   padding: 0 var(--space-6);
 }
 
-/* 태블릿 */
 @media (max-width: 768px) {
   .container { padding: 0 var(--space-4); }
 }
 
-/* 모바일 */
 @media (max-width: 375px) {
   .container { padding: 0 var(--space-3); }
 }
 ```
 
-### 할 일 목록 페이지 그리드 (S-03 데스크톱)
+### 할 일 목록 페이지 그리드
 
 ```css
 .todo-page-layout {
   display: grid;
   grid-template-columns: 240px 1fr;
-  gap: var(--space-6);
-  min-height: calc(100vh - 56px);  /* navBar 높이 제외 */
+  gap: 0;  /* 사이드바와 콘텐츠 사이 경계선으로 구분 */
+  min-height: calc(100vh - 56px);
 }
 
-/* 태블릿 이하 — 필터 접기 */
 @media (max-width: 768px) {
   .todo-page-layout {
     grid-template-columns: 1fr;
@@ -234,7 +258,7 @@
 }
 ```
 
-### 인증 화면 레이아웃 (S-01, S-02)
+### 인증 화면 레이아웃
 
 ```css
 .auth-layout {
@@ -243,14 +267,10 @@
   justify-content: center;
   min-height: 100vh;
   background-color: var(--color-bg-base);
-  /* 대각선 그리드 패턴 (선택적) */
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 40px,
-    rgba(255, 255, 255, 0.02) 40px,
-    rgba(255, 255, 255, 0.02) 41px
-  );
+  /* 보라 안개 효과 */
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(61, 17, 80, 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(61, 17, 80, 0.2) 0%, transparent 60%);
 }
 
 .auth-card {
@@ -286,14 +306,14 @@
   white-space: nowrap;
 }
 
-/* ── Primary (옐로우 CTA) ── */
+/* ── Primary (옐로우 CTA — 퍼플 배경 위 최대 대비) ── */
 .btn-primary {
   background-color: var(--color-accent);
   color: var(--color-text-inverse);
   border-color: var(--color-accent);
 }
-.btn-primary:hover   { background-color: var(--color-accent-hover); }
-.btn-primary:active  { background-color: var(--color-accent-pressed); }
+.btn-primary:hover  { background-color: var(--color-accent-hover); }
+.btn-primary:active { background-color: var(--color-accent-pressed); }
 
 /* ── Secondary (외곽선) ── */
 .btn-secondary {
@@ -303,7 +323,7 @@
 }
 .btn-secondary:hover { background-color: var(--color-bg-elevated); }
 
-/* ── Ghost (텍스트만) ── */
+/* ── Ghost ── */
 .btn-ghost {
   background-color: transparent;
   color: var(--color-text-secondary);
@@ -311,7 +331,7 @@
 }
 .btn-ghost:hover { color: var(--color-text-primary); }
 
-/* ── Danger (삭제) ── */
+/* ── Danger ── */
 .btn-danger {
   background-color: transparent;
   color: var(--color-error);
@@ -326,7 +346,7 @@
 }
 .btn-loading {
   position: relative;
-  color: transparent;  /* 로딩 중 텍스트 숨김 */
+  color: transparent;
 }
 .btn-loading::after {
   content: '';
@@ -360,21 +380,17 @@
 }
 
 .input::placeholder { color: var(--color-text-disabled); }
-
 .input:hover  { border-color: var(--color-border-strong); }
-.input:focus  { border-color: var(--color-border-focus); }
+.input:focus  { border-color: var(--color-border-focus); }  /* 옐로우 포커스 링 */
 
-/* 에러 상태 */
-.input-error  { border-color: var(--color-error); }
+.input-error       { border-color: var(--color-error); }
 .input-error:focus { border-color: var(--color-error); }
 
-/* 읽기 전용 (이메일 필드) */
 .input:read-only {
   color: var(--color-text-disabled);
   cursor: default;
 }
 
-/* 레이블 */
 .input-label {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
@@ -386,7 +402,6 @@
   display: block;
 }
 
-/* 에러 메시지 */
 .input-error-msg {
   font-family: var(--font-body);
   font-size: 0.75rem;
@@ -401,6 +416,7 @@
 .todo-card {
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
+  border-left: 3px solid transparent;  /* 상태 컬러 인디케이터 */
   padding: var(--space-4) var(--space-5);
   display: flex;
   flex-direction: column;
@@ -413,12 +429,14 @@
   background-color: var(--color-bg-elevated);
 }
 
-/* 완료 상태 — 흐릿하게 */
-.todo-card-completed {
-  opacity: 0.5;
-}
+/* 상태별 왼쪽 인디케이터 */
+.todo-card[data-status="in_progress"] { border-left-color: var(--color-status-in-progress); }
+.todo-card[data-status="overdue"]     { border-left-color: var(--color-status-overdue); }
+.todo-card[data-status="completed"]   { border-left-color: var(--color-status-completed); }
 
-/* 카드 제목 */
+/* 완료 상태 */
+.todo-card-completed { opacity: 0.5; }
+
 .todo-card-title {
   font-family: var(--font-body);
   font-size: 0.9375rem;
@@ -431,7 +449,6 @@
   text-decoration: line-through;
 }
 
-/* 메타 정보 (카테고리, 날짜) */
 .todo-card-meta {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
@@ -440,7 +457,6 @@
   color: var(--color-text-secondary);
 }
 
-/* 액션 버튼 영역 */
 .todo-card-actions {
   display: flex;
   gap: var(--space-2);
@@ -468,13 +484,13 @@
 .badge-completed   { color: var(--color-status-completed); }
 ```
 
-### 6-5. 네비게이션 바
+### 6-5. 네비게이션 바 (Slack 오버진)
 
 ```css
 .navbar {
   height: 56px;
-  background-color: #000000;        /* 완전한 검정 — 이미지 레퍼런스 */
-  border-bottom: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-sidebar);  /* Slack 오버진 — 라이트 모드에서도 유지 */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -490,7 +506,7 @@
   font-weight: 800;
   font-style: italic;
   text-transform: uppercase;
-  color: var(--color-text-primary);
+  color: #FFFFFF;  /* 오버진 위 항상 흰색 */
   letter-spacing: 0.02em;
 }
 
@@ -505,19 +521,21 @@
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-text-secondary);
+  color: var(--color-text-sidebar);
   cursor: pointer;
+  transition: color var(--transition-fast);
 }
-.navbar-user:hover { color: var(--color-text-primary); }
+.navbar-user:hover { color: #FFFFFF; }
 ```
 
-### 6-6. 필터 패널 (S-03 사이드바)
+### 6-6. 필터 패널 (Slack 오버진 사이드바)
 
 ```css
 .filter-panel {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  padding: var(--space-5);
+  background-color: var(--color-bg-sidebar);  /* 오버진 — NavBar와 연결된 느낌 */
+  border-right: 1px solid rgba(0, 0, 0, 0.3);
+  padding: var(--space-6) var(--space-5);
+  min-height: 100%;
 }
 
 .filter-section-title {
@@ -526,7 +544,7 @@
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-text-secondary);
+  color: rgba(200, 184, 220, 0.6);  /* 사이드바 텍스트 투명도 낮춤 */
   margin-bottom: var(--space-3);
 }
 
@@ -534,17 +552,25 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2) 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 4px;
   font-family: var(--font-body);
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: var(--color-text-sidebar);
   cursor: pointer;
-  transition: color 0.1s;
+  transition: background-color 0.1s, color 0.1s;
 }
 
-.filter-option:hover       { color: var(--color-text-primary); }
-.filter-option-active      { color: var(--color-accent); font-weight: 600; }
-.filter-option input[type="radio"] { accent-color: var(--color-accent); }
+.filter-option:hover {
+  background-color: var(--color-bg-sidebar-hover);
+  color: #FFFFFF;
+}
+
+.filter-option-active {
+  background-color: var(--color-bg-sidebar-active);
+  color: #FFFFFF;
+  font-weight: 600;
+}
 ```
 
 ### 6-7. Modal (삭제 확인)
@@ -553,7 +579,7 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(12, 8, 16, 0.85);  /* 퍼플 틴트 오버레이 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -566,6 +592,7 @@
   padding: var(--space-8);
   width: 100%;
   max-width: 400px;
+  animation: fadeIn 0.15s ease;
 }
 
 .modal-title {
@@ -589,6 +616,79 @@
 }
 ```
 
+### 6-8. 캘린더
+
+```css
+.calendar-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.calendar-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+}
+
+.calendar-nav-btn {
+  background: none;
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition: border-color 0.1s, color 0.1s;
+}
+.calendar-nav-btn:hover {
+  border-color: var(--color-border-focus);
+  color: var(--color-text-primary);
+}
+
+.calendar-day-header {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: var(--space-2);
+}
+
+.calendar-cell {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  min-height: 80px;
+  padding: var(--space-2);
+  vertical-align: top;
+  transition: background-color 0.1s;
+}
+.calendar-cell:hover { background-color: var(--color-bg-elevated); }
+
+.calendar-cell-today {
+  border-color: var(--color-accent);
+  background-color: rgba(245, 214, 26, 0.05);  /* 옐로우 미세 틴트 */
+}
+
+/* 공휴일 날짜 */
+.calendar-cell-holiday {
+  background-color: rgba(255, 77, 77, 0.08);
+}
+.calendar-cell-holiday .calendar-date-number { color: var(--color-error); }
+
+.calendar-date-number {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-1);
+}
+```
+
 ---
 
 ## 7. 아이콘
@@ -602,29 +702,25 @@ import { Plus, Trash2, Pencil, Check, LogOut, User } from 'lucide-react';
 // 인라인 텍스트: 14px
 // 버튼 내: 16px
 // 네비게이션: 20px
+
+// 사이드바 아이콘: color = var(--color-text-sidebar)
+// 사이드바 아이콘 hover: color = #FFFFFF
 ```
 
 ---
 
 ## 8. 애니메이션 / 트랜지션
 
-빠르고 기능적인 트랜지션만 사용한다. 과도한 애니메이션은 지양한다.
-
 ```css
-/* 표준 트랜지션 */
 --transition-fast:   0.1s ease;
 --transition-normal: 0.15s ease;
 --transition-slow:   0.25s ease;
-
-/* 버튼, 인풋 hover/focus */
-transition: var(--transition-normal);
 
 /* 모달 진입 */
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.97); }
   to   { opacity: 1; transform: scale(1); }
 }
-.modal { animation: fadeIn 0.15s ease; }
 
 /* 로딩 스피너 */
 @keyframes spin {
@@ -637,63 +733,53 @@ transition: var(--transition-normal);
 ## 9. 반응형
 
 ```css
-/* ── 브레이크포인트 ── */
 /* 데스크톱 (기본) : 769px 이상 */
 /* 태블릿           : 768px 이하 */
 /* 모바일           : 375px 이하 */
 
-/* S-03 모바일: 상태 필터를 가로 스크롤 탭으로 변환 */
+/* 태블릿 이하 — 필터 사이드바 접기 */
 @media (max-width: 768px) {
+  .filter-panel {
+    display: none;  /* 모바일에서는 하단 시트 또는 숨김 처리 */
+  }
+
+  /* 상태 필터를 상단 가로 스크롤 탭으로 대체 */
   .status-filter-tabs {
     display: flex;
     gap: var(--space-2);
     overflow-x: auto;
     scrollbar-width: none;
-    -ms-overflow-style: none;
     padding-bottom: var(--space-2);
+    background-color: var(--color-bg-sidebar);
+    padding: var(--space-3) var(--space-4);
   }
   .status-filter-tabs::-webkit-scrollbar { display: none; }
 
   .status-tab {
     flex-shrink: 0;
     padding: var(--space-2) var(--space-4);
-    border: 1px solid var(--color-border-default);
+    border: 1px solid rgba(200, 184, 220, 0.3);
+    color: var(--color-text-sidebar);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     cursor: pointer;
     white-space: nowrap;
+    background: none;
+    border-radius: 4px;
   }
   .status-tab-active {
     border-color: var(--color-accent);
     color: var(--color-accent);
+    background-color: rgba(245, 214, 26, 0.1);
   }
 }
 ```
 
 ---
 
-## 10. 배경 텍스처 (선택적 장식)
-
-레퍼런스 이미지의 대각선 그리드 패턴을 인증 화면과 빈 상태 화면에 적용한다.
-
-```css
-.diagonal-grid-bg {
-  background-image:
-    repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 60px,
-      rgba(255, 255, 255, 0.015) 60px,
-      rgba(255, 255, 255, 0.015) 61px
-    );
-}
-```
-
----
-
-## 11. 빈 상태 / 로딩
+## 10. 빈 상태 / 로딩
 
 ### 빈 목록 (Empty State)
 
@@ -730,9 +816,9 @@ transition: var(--transition-normal);
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--color-bg-surface)   25%,
-    var(--color-bg-elevated)  50%,
-    var(--color-bg-surface)   75%
+    var(--color-bg-surface)  25%,
+    var(--color-bg-elevated) 50%,
+    var(--color-bg-surface)  75%
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
@@ -752,7 +838,7 @@ transition: var(--transition-normal);
 
 ---
 
-## 12. CSS 변수 전체 참조 (globals.css)
+## 11. CSS 변수 전체 참조 (globals.css)
 
 ```css
 /* frontend/src/styles/globals.css */
@@ -760,34 +846,38 @@ transition: var(--transition-normal);
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Color */
-  --color-bg-base:      #0f0f0f;
-  --color-bg-surface:   #1a1a1a;
-  --color-bg-elevated:  #242424;
-  --color-bg-overlay:   #2e2e2e;
+  /* Color — 다크 오버진 테마 */
+  --color-bg-base:           #0C0810;
+  --color-bg-surface:        #17112A;
+  --color-bg-elevated:       #1F1836;
+  --color-bg-overlay:        #2A2245;
+  --color-bg-sidebar:        #3D1150;
+  --color-bg-sidebar-hover:  #4D1A64;
+  --color-bg-sidebar-active: rgba(255, 255, 255, 0.12);
 
-  --color-text-primary:   #f0ebe3;
-  --color-text-secondary: #8a8580;
-  --color-text-disabled:  #4a4a4a;
-  --color-text-inverse:   #0f0f0f;
+  --color-text-primary:   #EDE8F5;
+  --color-text-secondary: #9882B0;
+  --color-text-disabled:  #4C3A5E;
+  --color-text-inverse:   #0C0810;
+  --color-text-sidebar:   #C8B8DC;
 
-  --color-border-default: #2a2a2a;
-  --color-border-strong:  #3d3d3d;
-  --color-border-focus:   #f0ebe3;
+  --color-border-default: #25163A;
+  --color-border-strong:  #362150;
+  --color-border-focus:   #F5D61A;
 
-  --color-accent:         #f5d61a;
-  --color-accent-hover:   #f0ca00;
-  --color-accent-pressed: #d4b000;
+  --color-accent:          #F5D61A;
+  --color-accent-hover:    #F0CA00;
+  --color-accent-pressed:  #D4B000;
 
-  --color-success: #2fd87a;
-  --color-warning: #f5a623;
-  --color-error:   #ff4d4d;
-  --color-info:    #4da6ff;
+  --color-success: #2FD87A;
+  --color-warning: #F5A623;
+  --color-error:   #FF4D4D;
+  --color-info:    #818CF8;
 
-  --color-status-pending:     #6b6b6b;
-  --color-status-in-progress: #4da6ff;
-  --color-status-overdue:     #ff4d4d;
-  --color-status-completed:   #2fd87a;
+  --color-status-pending:     #6B5E7E;
+  --color-status-in-progress: #818CF8;
+  --color-status-overdue:     #FF4D4D;
+  --color-status-completed:   #2FD87A;
 
   /* Font */
   --font-display: 'Barlow Condensed', 'Anton', sans-serif;
@@ -815,12 +905,12 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 스크롤바 */
+/* 스크롤바 — 퍼플 틴트 */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-bg-surface); }
-::-webkit-scrollbar-thumb { background: var(--color-border-strong); }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 3px; }
 
-/* 선택 영역 */
+/* 선택 영역 — 옐로우 액센트 유지 */
 ::selection {
   background-color: var(--color-accent);
   color: var(--color-text-inverse);
@@ -834,3 +924,23 @@ a {
 }
 a:hover { color: var(--color-accent); }
 ```
+
+---
+
+## 12. v1 → v2 변경 요약
+
+| 항목 | v1 (다크 에디토리얼) | v2 (다크 오버진 에디토리얼) |
+|------|---------------------|---------------------------|
+| 배경 베이스 | `#0f0f0f` (순수 검정) | `#0C0810` (보라 언더톤 검정) |
+| 표면 | `#1a1a1a` (뉴트럴 다크) | `#17112A` (딥 퍼플) |
+| NavBar | `#000000` (검정) | `#3D1150` (Slack 오버진) |
+| 사이드바 | 콘텐츠와 동일 배경 | `#3D1150` (오버진 — NavBar 연속성) |
+| 주요 텍스트 | `#f0ebe3` (크림 화이트) | `#EDE8F5` (보라 틴트 화이트) |
+| 보조 텍스트 | `#8a8580` (뉴트럴) | `#9882B0` (보라 틴트) |
+| 액센트 | `#f5d61a` (옐로우) | `#F5D61A` (옐로우 — 유지) |
+| 포커스 링 | `#f0ebe3` (크림) | `#F5D61A` (옐로우 — 퍼플 위 더 강한 대비) |
+| info 색상 | `#4da6ff` (블루) | `#818CF8` (인디고 — 퍼플 조화) |
+| 진행 중 배지 | `#4da6ff` (블루) | `#818CF8` (인디고) |
+| 사이드바 호버 | 없음 | `#4D1A64` (밝은 오버진) |
+| 카드 인디케이터 | 없음 | 왼쪽 3px 상태 컬러 보더 |
+| 인증 배경 | 대각선 그리드 | 방사형 퍼플 안개 그라디언트 |
